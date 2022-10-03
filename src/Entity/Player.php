@@ -58,10 +58,18 @@ class Player
         return $this->password;
     }
 
+    public function checkPassword(string $password): bool
+    {
+        if (hash("sha256", $password) == $this->password) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function setPassword(string $password): self
     {
-        $this->password = $password;
-
+        $this->password = hash("sha256", $password);
         return $this;
     }
 
