@@ -2,18 +2,21 @@
 
 namespace App\Controller;
 
+use App\Repository\PlayerRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class PlayerController extends AbstractController
 {
     #[Route('/player', name: 'app_player')]
-    public function index(): JsonResponse
+    public function index(PlayerRepository $playerRepository, SerializerInterface $serializer): JsonResponse
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/PlayerController.php',
-        ]);
+
+        $value = $playerRepository->findAll();
+        $jsonPlayer = $serializer->serialize($value, 'json');
+        return new JsonResponse($value, Response::HTTP_OK, [], false);
     }
 }

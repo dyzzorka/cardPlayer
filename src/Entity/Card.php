@@ -6,6 +6,7 @@ use App\Repository\CardRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CardRepository::class)]
 class Card
@@ -13,15 +14,19 @@ class Card
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getCard"])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(["getCard"])]
     private ?int $value = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getCard"])]
     private ?string $family = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups(["getCard"])]
     private ?string $image = null;
 
     #[ORM\Column]

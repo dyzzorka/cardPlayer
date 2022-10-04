@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: GameModRepository::class)]
 class GameMod
@@ -14,15 +15,19 @@ class GameMod
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getGamemod"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getGamemod"])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(["getGamemod"])]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Groups(["getGamemod"])]
     private ?int $player_limit = null;
 
     #[ORM\Column]
