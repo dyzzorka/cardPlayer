@@ -16,9 +16,16 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[Route('/gamemod')]
 class GameModController extends AbstractController
 {
-    
+
 
     #[Route('/all', name: 'gamemod.all')]
+    /**
+     * Function to get all GameMod.
+     *
+     * @param GameModRepository $gameModRepository
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer): JsonResponse
     {
         $jsonGamemodCards = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
@@ -28,6 +35,13 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}', name: 'gamemod.one', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    /**
+     * Function to get one GameMod.
+     *
+     * @param GameMod $gameMod
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getOneGamemod(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
         $jsonGamemodCards = $serializer->serialize($gameMod, 'json');
@@ -37,13 +51,13 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}/cards', name: 'gamemod.card', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
-/**
- * Function to get all cards from a deck in GameMod.
- *
- * @param GameMod $gameMod
- * @param SerializerInterface $serializer
- * @return JsonResponse
- */
+    /**
+     * Function to get all cards from a deck in GameMod.
+     *
+     * @param GameMod $gameMod
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getAllCards(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
         $jsonGamemodCards = $serializer->serialize($gameMod->getCards(), 'json');
@@ -68,7 +82,7 @@ class GameModController extends AbstractController
     }
 
 
-    
+
     #[Route('/{Gamemodname}', name: 'gamemod.status', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
