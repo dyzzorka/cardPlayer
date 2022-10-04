@@ -103,6 +103,7 @@ class GameModController extends AbstractController
         $gameMod->setStatus(true);
         $entityManager->persist($gameMod);
         $entityManager->flush();
+
         $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
 
         $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
