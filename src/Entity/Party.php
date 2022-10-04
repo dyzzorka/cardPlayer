@@ -25,6 +25,12 @@ class Party
     #[ORM\JoinColumn(nullable: false)]
     private ?GameMod $gamemod = null;
 
+    #[ORM\Column]
+    private ?bool $run = null;
+
+    #[ORM\Column]
+    private ?bool $status = null;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
@@ -79,6 +85,30 @@ class Party
     public function setGamemod(?GameMod $gamemod): self
     {
         $this->gamemod = $gamemod;
+
+        return $this;
+    }
+
+    public function isRun(): ?bool
+    {
+        return $this->run;
+    }
+
+    public function setRun(bool $run): self
+    {
+        $this->run = $run;
+
+        return $this;
+    }
+
+    public function isStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }
