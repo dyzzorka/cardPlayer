@@ -9,16 +9,18 @@ use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/gamemod')]
 class GameModController extends AbstractController
 {
-
-
-    #[Route('/all', name: 'gamemod.all')]
+    #[Route('/', name: 'gamemod.all', methods: ['GET'])]
     /**
      * Function to get all GameMod.
      *
@@ -31,7 +33,6 @@ class GameModController extends AbstractController
         $jsonGamemodCards = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
-
 
     #[Route('/{Gamemodname}', name: 'gamemod.one', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
@@ -48,7 +49,6 @@ class GameModController extends AbstractController
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-
     #[Route('/{Gamemodname}/cards', name: 'gamemod.card', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
@@ -63,7 +63,6 @@ class GameModController extends AbstractController
         $jsonGamemodCards = $serializer->serialize($gameMod->getCards(), 'json');
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
-
 
     #[Route('/{Gamemodname}/delete', name: 'gamemod.delete', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
@@ -81,8 +80,6 @@ class GameModController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-
-
     #[Route('/{Gamemodname}', name: 'gamemod.status', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
@@ -97,5 +94,33 @@ class GameModController extends AbstractController
         $gameMod->setStatus(false);
         $entityManager->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/', name: 'gamemod.add', methods: ['POST'])]
+    public function createGamemod(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
+    {
+        $gameMod = $serializer->deserialize($request->getContent(), GameMod::class, 'json');
+        $gameMod->setStatus(true);
+        $entityManager->persist($gameMod);
+        $entityManager->flush();
+        $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
+
+        $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
+        return new JsonResponse($jsonGamemod, Response::HTTP_CREATED, ["Location" => $location], true);
+    }
+
+    #[Route('/{Gamemodname}', name: 'gamemod.update', methods: ['PUT'])]
+    #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    public function updateGamemod(GameMod $gameMod, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
+    {
+        $gameModupdate = $serializer->deserialize($request->getContent(), GameMod::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $gameMod]);
+
+        $gameMod->setStatus(true);
+        $entityManager->persist($gameMod);
+        $entityManager->flush();
+        $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
+
+        $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
+        return new JsonResponse($jsonGamemod, Response::HTTP_CREATED, ["Location" => $location], true);
     }
 }
