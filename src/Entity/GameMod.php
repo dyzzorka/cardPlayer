@@ -31,6 +31,7 @@ class GameMod
     private ?int $player_limit = null;
 
     #[ORM\Column]
+    #[Groups(["getGamemod"])]
     private ?bool $status = null;
 
     #[ORM\OneToMany(mappedBy: 'gamemod', targetEntity: Rank::class, orphanRemoval: true)]
