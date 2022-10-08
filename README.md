@@ -5,6 +5,6 @@ Cardplayer est un projet consistant à créer une api sécurisée de jeu de cart
 Ce projet est relalisé par Yohan VOLLAIRE / yohan.vollaire@ynov.com et Antoine GUERIN / antoine.guerin@ynov.com.
 
 Afin d'utiliser cette API en local, suivez les instructions ci-dessous  
- * __A compléter quand ce sera finis__
+ * __A compléter quand ce sera finis__ avec ```morceaux de code```
 
 Bonne parties avec CardPlayer !
