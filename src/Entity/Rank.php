@@ -13,10 +13,6 @@ class Rank
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'ranks')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Player $player = null;
-
     #[ORM\Column(nullable: true)]
     private ?int $mmr = null;
 
@@ -27,21 +23,12 @@ class Rank
     #[ORM\JoinColumn(nullable: false)]
     private ?GameMod $gamemod = null;
 
+    #[ORM\ManyToOne(inversedBy: 'ranks')]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getPlayer(): ?Player
-    {
-        return $this->player;
-    }
-
-    public function setPlayer(?Player $player): self
-    {
-        $this->player = $player;
-
-        return $this;
     }
 
     public function getMmr(): ?int
@@ -76,6 +63,18 @@ class Rank
     public function setGamemod(?GameMod $gamemod): self
     {
         $this->gamemod = $gamemod;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

@@ -18,9 +18,6 @@ class Party
     #[ORM\Column(length: 500)]
     private ?string $token = null;
 
-    #[ORM\ManyToMany(targetEntity: Player::class, inversedBy: 'parties')]
-    private Collection $players;
-
     #[ORM\ManyToOne(inversedBy: 'parties')]
     #[ORM\JoinColumn(nullable: false)]
     private ?GameMod $gamemod = null;
@@ -31,9 +28,13 @@ class Party
     #[ORM\Column]
     private ?bool $status = null;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'parties')]
+    private Collection $users;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -61,21 +62,6 @@ class Party
         return $this->players;
     }
 
-    public function addPlayer(Player $player): self
-    {
-        if (!$this->players->contains($player)) {
-            $this->players->add($player);
-        }
-
-        return $this;
-    }
-
-    public function removePlayer(Player $player): self
-    {
-        $this->players->removeElement($player);
-
-        return $this;
-    }
 
     public function getGamemod(): ?GameMod
     {
@@ -109,6 +95,33 @@ class Party
     public function setStatus(bool $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addParty($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removeParty($this);
+        }
 
         return $this;
     }

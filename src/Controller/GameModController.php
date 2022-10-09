@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class GameModController extends AbstractController
 {
     #[Route('/', name: 'gamemod.all', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN', message: 'HAHAHAHA ta mere la pute')]
+    // #[IsGranted('ROLE_ADMIN')]
     /**
      * Function to get all GameMod.
      *
@@ -99,6 +99,15 @@ class GameModController extends AbstractController
     }
 
     #[Route('/', name: 'gamemod.add', methods: ['POST'])]
+    /**
+     * Function for add a GameMod
+     *
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     * @param SerializerInterface $serializer
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return JsonResponse
+     */
     public function createGamemod(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $gameMod = $serializer->deserialize($request->getContent(), GameMod::class, 'json');
@@ -113,6 +122,16 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}', name: 'gamemod.update', methods: ['PUT'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    /**
+     * Function for update a GameMod
+     *
+     * @param GameMod $gameMod
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     * @param SerializerInterface $serializer
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return JsonResponse
+     */
     public function updateGamemod(GameMod $gameMod, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $gameModupdate = $serializer->deserialize($request->getContent(), GameMod::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $gameMod]);

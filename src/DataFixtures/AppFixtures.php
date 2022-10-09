@@ -27,15 +27,8 @@ class AppFixtures extends Fixture
     {
 
 
-        for ($i = 0; $i < 10; $i++) {
-            $userUser = new User();
-            $password = "yoyo";
-            $userUser->setUsername("yoyo".$i)->setRoles(['ROLE_USER'])->setPassword($this->passwordHasher->hashPassword($userUser, $password));
-            $manager->persist($userUser);
-        }
-
         $userUser = new User();
-        $userUser->setUsername("admin")->setRoles(['ROLE_ADMIN'])->setPassword($this->passwordHasher->hashPassword($userUser, "password"));
+        $userUser->setUsername("admin")->setRoles(['ROLE_ADMIN'])->setPassword($this->passwordHasher->hashPassword($userUser, "password"))->setStatus(true);
         $manager->persist($userUser);
         $manager->flush();
 
