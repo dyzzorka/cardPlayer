@@ -6,6 +6,7 @@ use App\Entity\GameMod;
 use App\Repository\GameModRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,10 +18,11 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/gamemod')]
+#[Route('/api/gamemod')]
 class GameModController extends AbstractController
 {
     #[Route('/', name: 'gamemod.all', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN', message: 'HAHAHAHA ta mere la pute')]
     /**
      * Function to get all GameMod.
      *
