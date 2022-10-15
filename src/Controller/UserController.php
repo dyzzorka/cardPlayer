@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api/user')]
@@ -37,6 +38,19 @@ class UserController extends AbstractController
         $jsonuser = $serializer->serialize($user, 'json', ["groups" => "registerResponse"]);
 
         return new JsonResponse($jsonuser, Response::HTTP_CREATED, [], true);
+    }
+
+    #[Route('/view', name: 'user.view', methods: ['GET'])]
+    /**
+     * Function that returns the authenticated user.
+     *
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
+    public function view(SerializerInterface $serializer): JsonResponse
+    {
+        $jsonuser = $serializer->serialize($this->getUser(), 'json', ["groups" => "getUser"]);
+        return new JsonResponse($jsonuser, Response::HTTP_OK, [], true);
     }
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
