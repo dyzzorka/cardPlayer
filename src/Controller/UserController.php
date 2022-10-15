@@ -41,7 +41,6 @@ class UserController extends AbstractController
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
-
     /**
      * Function get information of a user
      *
@@ -71,7 +70,7 @@ class UserController extends AbstractController
         $entityManager->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
-    
+
     #[Route('/{idUser}/delete', name: 'user.delete', methods: ['DELETE'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]

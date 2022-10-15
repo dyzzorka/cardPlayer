@@ -12,10 +12,11 @@ class Rank
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getUser", "getRank", "getOneRank"])]
     private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(["getUser"])]
+    #[Groups(["getUser", "getRank", "getOneRank"])]
     private ?int $mmr = null;
 
     #[ORM\Column]
@@ -23,10 +24,11 @@ class Rank
 
     #[ORM\ManyToOne(inversedBy: 'ranks')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getUser"])]
+    #[Groups(["getUser", "getOneRank"])]
     private ?GameMod $gamemod = null;
 
     #[ORM\ManyToOne(inversedBy: 'ranks')]
+    #[Groups(["getRank", "getOneRank"])]
     private ?User $user = null;
 
     public function getId(): ?int

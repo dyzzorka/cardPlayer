@@ -54,7 +54,7 @@ class GameModController extends AbstractController
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
      * Function to get all cards from a deck in GameMod.
-     *
+     * 
      * @param GameMod $gameMod
      * @param SerializerInterface $serializer
      * @return JsonResponse
