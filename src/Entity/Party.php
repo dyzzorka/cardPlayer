@@ -6,6 +6,7 @@ use App\Repository\PartyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PartyRepository::class)]
 class Party
@@ -16,10 +17,12 @@ class Party
     private ?int $id = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups(["getParty"])]
     private ?string $token = null;
 
     #[ORM\ManyToOne(inversedBy: 'parties')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["getParty"])]
     private ?GameMod $gamemod = null;
 
     #[ORM\Column]
@@ -29,15 +32,18 @@ class Party
     private ?bool $end = null;
 
     #[ORM\Column]
+    #[Groups(["getParty"])]
     private ?bool $full = null;
 
     #[ORM\Column]
+    #[Groups(["getParty"])]
     private ?bool $private = null;
 
     #[ORM\Column]
     private ?bool $status = null;
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'parties')]
+    #[Groups(["getParty"])]
     private Collection $users;
 
 
