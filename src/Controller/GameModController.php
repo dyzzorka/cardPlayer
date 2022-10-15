@@ -22,7 +22,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 class GameModController extends AbstractController
 {
     #[Route('/', name: 'gamemod.all', methods: ['GET'])]
-    // #[IsGranted('ROLE_ADMIN')]
     /**
      * Function to get all GameMod.
      *
@@ -68,6 +67,7 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}/delete', name: 'gamemod.delete', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[IsGranted('ROLE_ADMIN')]
     /**
      * Function that removes a GameMode.
      *
@@ -84,6 +84,7 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}', name: 'gamemod.status', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[IsGranted('ROLE_ADMIN')]
     /**
      * Function that changes the status of a GameMod.
      *
@@ -99,6 +100,7 @@ class GameModController extends AbstractController
     }
 
     #[Route('/', name: 'gamemod.add', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     /**
      * Function for add a GameMod
      *
@@ -122,6 +124,7 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}', name: 'gamemod.update', methods: ['PUT'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[IsGranted('ROLE_ADMIN')]
     /**
      * Function for update a GameMod
      *
@@ -134,7 +137,7 @@ class GameModController extends AbstractController
      */
     public function updateGamemod(GameMod $gameMod, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
-        $gameModupdate = $serializer->deserialize($request->getContent(), GameMod::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $gameMod]);
+        $serializer->deserialize($request->getContent(), GameMod::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $gameMod]);
 
         $gameMod->setStatus(true);
         $entityManager->persist($gameMod);

@@ -19,7 +19,7 @@ class GameMod
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getGamemod"])]
+    #[Groups(["getGamemod", "getUser"])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]

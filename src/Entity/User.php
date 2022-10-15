@@ -16,10 +16,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUser"])]
+    #[Groups(["getUser", "registerResponse"])]
     private ?int $id = null;
     
-    #[Groups(["getUser"])]
+    #[Groups(["getUser", "registerResponse"])]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $username = null;
 
@@ -33,6 +33,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Rank::class)]
+    #[Groups(["getUser"])]
     private Collection $ranks;
 
     #[ORM\ManyToMany(targetEntity: Party::class, inversedBy: 'users')]

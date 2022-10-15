@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\RankRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RankRepository::class)]
 class Rank
@@ -14,6 +15,7 @@ class Rank
     private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(["getUser"])]
     private ?int $mmr = null;
 
     #[ORM\Column]
@@ -21,6 +23,7 @@ class Rank
 
     #[ORM\ManyToOne(inversedBy: 'ranks')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["getUser"])]
     private ?GameMod $gamemod = null;
 
     #[ORM\ManyToOne(inversedBy: 'ranks')]
