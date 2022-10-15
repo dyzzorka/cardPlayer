@@ -24,12 +24,22 @@ class Party
 
     #[ORM\Column]
     private ?bool $run = null;
+    
+    #[ORM\Column]
+    private ?bool $end = null;
+
+    #[ORM\Column]
+    private ?bool $full = null;
+
+    #[ORM\Column]
+    private ?bool $private = null;
 
     #[ORM\Column]
     private ?bool $status = null;
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'parties')]
     private Collection $users;
+
 
     public function __construct()
     {
@@ -122,6 +132,42 @@ class Party
         if ($this->users->removeElement($user)) {
             $user->removeParty($this);
         }
+
+        return $this;
+    }
+
+    public function isEnd(): ?bool
+    {
+        return $this->end;
+    }
+
+    public function setEnd(bool $end): self
+    {
+        $this->end = $end;
+
+        return $this;
+    }
+
+    public function isFull(): ?bool
+    {
+        return $this->full;
+    }
+
+    public function setFull(bool $full): self
+    {
+        $this->full = $full;
+
+        return $this;
+    }
+
+    public function isPrivate(): ?bool
+    {
+        return $this->private;
+    }
+
+    public function setPrivate(bool $private): self
+    {
+        $this->private = $private;
 
         return $this;
     }

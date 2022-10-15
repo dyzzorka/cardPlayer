@@ -15,11 +15,11 @@ class GameMod
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank"])]
+    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank", "getParty"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank"])]
+    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank", "getParty"])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -27,11 +27,10 @@ class GameMod
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(["getGamemod"])]
+    #[Groups(["getGamemod", "getParty"])]
     private ?int $player_limit = null;
 
     #[ORM\Column]
-    #[Groups(["getGamemod"])]
     private ?bool $status = null;
 
     #[ORM\OneToMany(mappedBy: 'gamemod', targetEntity: Rank::class, orphanRemoval: true)]

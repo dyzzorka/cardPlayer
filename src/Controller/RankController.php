@@ -28,8 +28,8 @@ class RankController extends AbstractController
      */
     public function getAllRank(GameModRepository $gameModRepository, SerializerInterface $serializer): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getRank"]);
-        return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonRank = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getRank"]);
+        return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/{RankId}', name: 'rank.one', methods: ['GET'])]
@@ -43,8 +43,8 @@ class RankController extends AbstractController
      */
     public function getOneRank(Rank $rank, SerializerInterface $serializer): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($rank, 'json', ["groups" => "getOneRank"]);
-        return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonRank = $serializer->serialize($rank, 'json', ["groups" => "getOneRank"]);
+        return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/{RankId}/delete', name: 'rank.delete', methods: ['DELETE'])]
@@ -90,8 +90,8 @@ class RankController extends AbstractController
      */
     public function getAllRankByGamemod(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameMod, 'json', ["groups" => "getRank"]);
-        return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonRank = $serializer->serialize($gameMod, 'json', ["groups" => "getRank"]);
+        return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/update/{Gamemodname}/{idUser}/{mmr}', name: 'gamemod.update', methods: ['PUT'])]
@@ -120,7 +120,7 @@ class RankController extends AbstractController
             $rank->setMmr($actualMmr += $mmr)->setStatus(true);
             $rankRepository->save($rank, true);
         }
-        $jsonGamemodCards = $serializer->serialize($rank, 'json', ["groups" => "getOneRank"]);
-        return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonRank = $serializer->serialize($rank, 'json', ["groups" => "getOneRank"]);
+        return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 }
