@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\GameMod;
 use App\Entity\Party;
+use App\Entity\User;
 use App\Repository\PartyRepository;
 use phpDocumentor\Reflection\Types\Boolean;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -102,6 +103,15 @@ class PartyController extends AbstractController
         return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
     }
 
+    #[Route('/history/{idUser}', name: 'party.historyUser', methods: ['GET'])]
+    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    public function getHistoryByUser(?User $user, SerializerInterface $serializer): JsonResponse
+    {
+        $user == null ? $this->getUser() : $user = $user;
+        $jsonParty = $serializer->serialize($user, 'json', ["groups" => "getPartyHistory"]);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
     /*Rest a faire 
     
     Historique ...
@@ -111,8 +121,6 @@ class PartyController extends AbstractController
     doc method
 
     et a reflechir
-    
-    
-    
-    */ 
+
+    */
 }

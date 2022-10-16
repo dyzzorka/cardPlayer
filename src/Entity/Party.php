@@ -17,12 +17,12 @@ class Party
     private ?int $id = null;
 
     #[ORM\Column(length: 500)]
-    #[Groups(["getParty"])]
+    #[Groups(["getParty", "getPartyHistory"])]
     private ?string $token = null;
 
     #[ORM\ManyToOne(inversedBy: 'parties')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getParty"])]
+    #[Groups(["getParty", "getPartyHistory"])]
     private ?GameMod $gamemod = null;
 
     #[ORM\Column]
@@ -36,7 +36,7 @@ class Party
     private ?bool $full = null;
 
     #[ORM\Column]
-    #[Groups(["getParty"])]
+    #[Groups(["getParty", "getPartyHistory"])]
     private ?bool $private = null;
 
     #[ORM\Column]
