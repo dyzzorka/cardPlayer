@@ -145,6 +145,6 @@ class GameModController extends AbstractController
         $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
 
         $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
-        return new JsonResponse($jsonGamemod, Response::HTTP_CREATED, ["Location" => $location], true);
+        return new JsonResponse($jsonGamemod, Response::HTTP_OK, ["Location" => $location], true);
     }
 }

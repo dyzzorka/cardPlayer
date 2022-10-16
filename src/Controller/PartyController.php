@@ -68,7 +68,7 @@ class PartyController extends AbstractController
         $party->addUser($user);
         $partyRepository->save($party, true);
         $jsonParty = $serializer->serialize($party, 'json', ["groups" => "getParty"]);
-        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+        return new JsonResponse($jsonParty, Response::HTTP_CREATED, ['accept' => 'json'], true);
     }
 
     #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
