@@ -26,7 +26,7 @@ class Card
     #[Groups(["getCard"])]
     private ?string $family = null;
 
-    #[ORM\Column(length: 500)]
+    #[ORM\Column(length: 8000)]
     #[Groups(["getCard"])]
     private ?string $image = null;
 
