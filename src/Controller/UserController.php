@@ -40,6 +40,19 @@ class UserController extends AbstractController
         return new JsonResponse($jsonuser, Response::HTTP_CREATED, [], true);
     }
 
+    #[Route('/view', name: 'user.view', methods: ['GET'])]
+    /**
+     * Function get information of the user connected
+     *
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
+    public function getUserConnected(SerializerInterface $serializer): JsonResponse
+    {
+        $jsonuser = $serializer->serialize($this->getUser(), 'json', ["groups" => "getUser"]);
+        return new JsonResponse($jsonuser, Response::HTTP_OK, [], true);
+    }
+
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     /**
@@ -49,9 +62,8 @@ class UserController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function getOneUser(?User $user, SerializerInterface $serializer): JsonResponse
+    public function getOneUser(User $user, SerializerInterface $serializer): JsonResponse
     {
-        $user == null ? $this->getUser() : $user = $user;
         $jsonuser = $serializer->serialize($user, 'json', ["groups" => "getUser"]);
         return new JsonResponse($jsonuser, Response::HTTP_OK, [], true);
     }
