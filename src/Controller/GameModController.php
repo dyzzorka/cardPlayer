@@ -61,7 +61,7 @@ class GameModController extends AbstractController
      */
     public function getAllCards(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameMod->getCards(), 'json');
+        $jsonGamemodCards = $serializer->serialize($gameMod, 'json', ["groups" => "getCard"]);
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 

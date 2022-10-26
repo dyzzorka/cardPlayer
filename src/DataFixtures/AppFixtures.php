@@ -35,25 +35,22 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $output = new ConsoleOutput();
-
-        // ANCHOR INSERT ALL CARDS
-
         $json = file_get_contents(__DIR__ . '/cards.json');
         $json = json_decode($json);
         $count = 1;
         $family = ['club', 'diamond', 'heart', 'spade', 'back'];
         $family_count = 0;
 
-        foreach ($json as $key => $value) {
+        foreach ($json as $value) {
             $card = new Card();
             if ($family[$family_count] == 'back') {
                 $card->setValue(0)
-                    ->setImage('img_' . $count . '_' . $family[$family_count])
+                    ->setImage($value)
                     ->setStatus(true)
                     ->setFamily('back');
             } else {
                 $card->setValue($count)
-                    ->setImage('img_' . $count . '_' . $family[$family_count])
+                    ->setImage($value)
                     ->setStatus(true)
                     ->setFamily($family[$family_count]);
             }
@@ -97,9 +94,9 @@ class AppFixtures extends Fixture
                 ->setPlayerLimit($i)
                 ->setStatus(true);
 
-                foreach($cards as $card) {
-                    $game->addCard($card);
-                }
+            foreach ($cards as $card) {
+                $game->addCard($card);
+            }
 
             $manager->persist($game);
             $manager->flush();
