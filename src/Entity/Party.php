@@ -70,15 +70,6 @@ class Party
         return $this;
     }
 
-    /**
-     * @return Collection<int, Player>
-     */
-    public function getPlayers(): Collection
-    {
-        return $this->players;
-    }
-
-
     public function getGamemod(): ?GameMod
     {
         return $this->gamemod;

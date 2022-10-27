@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\BlackJack;
 use App\Entity\Card;
 use App\Entity\GameMod;
 use App\Entity\Party;
@@ -15,7 +16,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Constraints\Blank;
 
 #[Route('/api/party')]
 class PartyController extends AbstractController
@@ -28,15 +31,16 @@ class PartyController extends AbstractController
     }
 
     #[Route('/test', name: 'party.try', methods: ['GET'])]
-    public function try(SerializerInterface $serializer, CardRepository $cardRepository, UserRepository $userRepository): JsonResponse
+    public function try(SerializerInterface $serializer, CardRepository $cardRepository, UserRepository $userRepository, PartyRepository $partyRepository): JsonResponse
     {
-        $cards = $cardRepository->findAll();
-        $user = $userRepository->findAll();
 
-        $test = array("deck" => $cardRepository->doDeck(6, $cards), "users" => array(array("user"=> $user[0], "hand" => array($cards[0],$cards[1],$cards[2],$cards[3]))));
-        $jsonParty = $serializer->serialize($test, 'json', ["groups"=> "getPlay"]);
+        $black = new BlackJack($partyRepository->find(3));
+        // dd($black);
+        $jsonParty = $serializer->serialize($black, 'json', ["groups"=> "getPlay"]);
+        $user = $serializer->deserialize($jsonParty, BlackJack::class, 'json',[AbstractNormalizer::OBJECT_TO_POPULATE => $black]);
+        $jsonParty2 = $serializer->serialize($user, 'json', ["groups"=> "getPlay"]);
         // dd($jsonParty);
-        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+        return new JsonResponse($jsonParty2, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/{partyToken}', name: 'party.one', methods: ['GET'])]
