@@ -149,5 +149,6 @@ class PartyController extends AbstractController
     clear group 
     doc method
     tiré une cards + gestion deck user
+    enlever la route test ici
     */
 }
