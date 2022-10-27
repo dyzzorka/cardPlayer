@@ -16,10 +16,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getPartyHistory"])]
+    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getPartyHistory", "getPlay"])]
     private ?int $id = null;
     
-    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getParty", "getPartyHistory"])]
+    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getParty", "getPartyHistory", "getPlay"])]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $username = null;
 

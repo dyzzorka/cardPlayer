@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Card;
 use App\Entity\GameMod;
 use App\Entity\Party;
 use App\Entity\User;
+use App\Repository\CardRepository;
 use App\Repository\PartyRepository;
+use App\Repository\UserRepository;
 use phpDocumentor\Reflection\Types\Boolean;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +24,18 @@ class PartyController extends AbstractController
     public function getAll(SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
         $jsonParty = $serializer->serialize($partyRepository->findBy(["run" => false, "end" => false, "full" => false, "private" => false]), 'json', ["groups" => "getParty"]);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
+    #[Route('/test', name: 'party.try', methods: ['GET'])]
+    public function try(SerializerInterface $serializer, CardRepository $cardRepository, UserRepository $userRepository): JsonResponse
+    {
+        $cards = $cardRepository->findAll();
+        $user = $userRepository->findAll();
+
+        $test = array("deck" => $cardRepository->doDeck(6, $cards), "users" => array(array("user"=> $user[0], "hand" => array($cards[0],$cards[1],$cards[2],$cards[3]))));
+        $jsonParty = $serializer->serialize($test, 'json', ["groups"=> "getPlay"]);
+        // dd($jsonParty);
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -85,6 +100,20 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
+    {
+        $user = $this->getUser();
+        if (in_array($user, $party->getUsers()->toArray())) {
+            $party->removeUser($user);
+        }
+
+        /* appliquer la baisse de mmr et autre action en cas de ff */
+
+        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
+    }
+
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
@@ -119,9 +148,6 @@ class PartyController extends AbstractController
     clear methode
     clear group 
     doc method
-    Object->manager  => Repo->add
-/leave party
-    et a reflechir
-tiré une cards + gestion deck user
+    tiré une cards + gestion deck user
     */
 }

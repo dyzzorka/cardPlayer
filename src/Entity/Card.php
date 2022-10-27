@@ -15,19 +15,19 @@ class Card
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getCard"])]
+    #[Groups(["getCard", "getPlay"])]
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(["getCard"])]
+    #[Groups(["getCard", "getPlay"])]
     private ?int $value = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getCard"])]
+    #[Groups(["getCard", "getPlay"])]
     private ?string $family = null;
 
     #[ORM\Column(length: 8000)]
-    #[Groups(["getCard"])]
+    #[Groups(["getCard", "getPlay"])]
     private ?string $image = null;
 
     #[ORM\Column]

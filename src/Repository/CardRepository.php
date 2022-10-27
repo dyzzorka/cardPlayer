@@ -40,13 +40,14 @@ class CardRepository extends ServiceEntityRepository
         }
     }
 
-    public function doDeck(int $quantity, Collection $cards): void
+    public function doDeck(int $quantity, array $cards): array
     {
         $deck = array();
         for ($i = 0; $i < $quantity; $i++) {
             $deck =  array_merge($deck, $cards);
         }
         shuffle($deck);
+        return $deck;
     }
 
     public function pickCard(array $cards): Card {
