@@ -17,6 +17,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
@@ -29,10 +31,15 @@ class GameModController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer): JsonResponse
+    public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
-        return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonGamemod = $tagAwareCacheInterface->get("getAllGamemod", function (ItemInterface $itemInterface) use ($gameModRepository, $serializer) {
+            $itemInterface->tag("gamemodCache");
+            echo "Mise en cache";
+            return $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
+        });
+
+        return new JsonResponse($jsonGamemod, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/{Gamemodname}', name: 'gamemod.one', methods: ['GET'])]
@@ -75,8 +82,9 @@ class GameModController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
-    public function deleteGamemod(GameMod $gameMod, GameModRepository $gameModRepository): JsonResponse
+    public function deleteGamemod(GameMod $gameMod, GameModRepository $gameModRepository, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
+        $tagAwareCacheInterface->invalidateTags(["gamemodCache"]);
         $gameModRepository->remove($gameMod, true);
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

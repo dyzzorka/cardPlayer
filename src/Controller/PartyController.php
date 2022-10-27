@@ -122,5 +122,7 @@ class PartyController extends AbstractController
 
     et a reflechir
 
+    tiré une cards + gestion deck user
+
     */
 }
