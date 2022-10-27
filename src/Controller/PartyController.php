@@ -35,12 +35,13 @@ class PartyController extends AbstractController
     {
 
         $black = new BlackJack($partyRepository->find(3));
-        // dd($black);
+        // dd($black->getActualPlayer());
         $jsonParty = $serializer->serialize($black, 'json', ["groups"=> "getPlay"]);
         $user = $serializer->deserialize($jsonParty, BlackJack::class, 'json',[AbstractNormalizer::OBJECT_TO_POPULATE => $black]);
-        $jsonParty2 = $serializer->serialize($user, 'json', ["groups"=> "getPlay"]);
+        dd($user);   /* WTF */
+        // $jsonParty2 = $serializer->serialize($user, 'json', ["groups"=> "getPlay"]);
         // dd($jsonParty);
-        return new JsonResponse($jsonParty2, Response::HTTP_OK, ['accept' => 'json'], true);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/{partyToken}', name: 'party.one', methods: ['GET'])]
