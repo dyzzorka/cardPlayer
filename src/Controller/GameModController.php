@@ -75,10 +75,9 @@ class GameModController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
-    public function deleteGamemod(GameMod $gameMod, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteGamemod(GameMod $gameMod, GameModRepository $gameModRepository): JsonResponse
     {
-        $entityManager->remove($gameMod);
-        $entityManager->flush();
+        $gameModRepository->remove($gameMod, true);
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -92,10 +91,9 @@ class GameModController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
-    public function statusGamemod(GameMod $gameMod, EntityManagerInterface $entityManager): JsonResponse
+    public function statusGamemod(GameMod $gameMod, GameModRepository $gameModRepository): JsonResponse
     {
-        $gameMod->setStatus(false);
-        $entityManager->flush();
+        $gameModRepository->save($gameMod->setStatus(false), true);
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -110,12 +108,10 @@ class GameModController extends AbstractController
      * @param UrlGeneratorInterface $urlGenerator
      * @return JsonResponse
      */
-    public function createGamemod(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
+    public function createGamemod(Request $request, GameModRepository $gameModRepository, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $gameMod = $serializer->deserialize($request->getContent(), GameMod::class, 'json');
-        $gameMod->setStatus(true);
-        $entityManager->persist($gameMod);
-        $entityManager->flush();
+        $gameModRepository->save($gameMod->setStatus(true), true);
         $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
 
         $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
@@ -135,13 +131,11 @@ class GameModController extends AbstractController
      * @param UrlGeneratorInterface $urlGenerator
      * @return JsonResponse
      */
-    public function updateGamemod(GameMod $gameMod, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
+    public function updateGamemod(GameMod $gameMod, Request $request, GameModRepository $gameModRepository, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $serializer->deserialize($request->getContent(), GameMod::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $gameMod]);
 
-        $gameMod->setStatus(true);
-        $entityManager->persist($gameMod);
-        $entityManager->flush();
+        $gameModRepository->save($gameMod->setStatus(true), true);
         $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
 
         $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
