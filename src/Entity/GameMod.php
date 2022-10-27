@@ -45,6 +45,9 @@ class GameMod
     #[ORM\OneToMany(mappedBy: 'gamemod', targetEntity: Party::class, orphanRemoval: true)]
     private Collection $parties;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $player_min = null;
+
     public function __construct()
     {
         $this->ranks = new ArrayCollection();
@@ -188,6 +191,18 @@ class GameMod
                 $party->setGamemod(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPlayerMin(): ?int
+    {
+        return $this->player_min;
+    }
+
+    public function setPlayerMin(?int $player_min): self
+    {
+        $this->player_min = $player_min;
 
         return $this;
     }

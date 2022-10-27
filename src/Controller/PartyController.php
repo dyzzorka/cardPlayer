@@ -119,10 +119,9 @@ class PartyController extends AbstractController
     clear methode
     clear group 
     doc method
-
+    Object->manager  => Repo->add
+/leave party
     et a reflechir
-
-    tiré une cards + gestion deck user
-
+tiré une cards + gestion deck user
     */
 }
