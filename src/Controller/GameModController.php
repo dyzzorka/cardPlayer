@@ -17,6 +17,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
@@ -29,9 +31,13 @@ class GameModController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer): JsonResponse
+    public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
+        $jsonGamemodCards = $cache->get("getAll", function(ItemInterface $item) use ($gameModRepository, $serializer){
+            $item->tag("GamemodCache");
+            echo 'mise en cache';
+            return $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
+        });
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -75,8 +81,9 @@ class GameModController extends AbstractController
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
-    public function deleteGamemod(GameMod $gameMod, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteGamemod(GameMod $gameMod, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse
     {
+        $cache->invalidateTags(["GamemodCache"]);
         $entityManager->remove($gameMod);
         $entityManager->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
