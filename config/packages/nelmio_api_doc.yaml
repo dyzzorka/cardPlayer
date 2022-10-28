@@ -2,8 +2,8 @@ nelmio_api_doc:
   models: { use_jms: false }
   documentation:
     info:
-      title: BileMoAPI
-      description: This is an awesome API REST for BileMo!
+      title: Casino API
+      description: This is a Casino API for fun. ENJOY !!!
       version: 1.0.0
     components:
       securitySchemes:
