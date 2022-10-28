@@ -54,6 +54,10 @@ class Picture
     #[Groups(['GetPicture'])]
     private ?\DateTimeInterface $uploadDate = null;
 
+    #[ORM\ManyToOne(inversedBy: 'image')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Card $card = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,6 +143,18 @@ class Picture
     public function setUploadDate(\DateTimeInterface $uploadDate): self
     {
         $this->uploadDate = $uploadDate;
+
+        return $this;
+    }
+
+    public function getCard(): ?Card
+    {
+        return $this->card;
+    }
+
+    public function setCard(?Card $card): self
+    {
+        $this->card = $card;
 
         return $this;
     }
