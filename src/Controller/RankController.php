@@ -13,7 +13,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\Serializer;
+use JMS\Serializer\SerializationContext;
 
 #[Route('/api/rank')]
 class RankController extends AbstractController
@@ -28,7 +30,8 @@ class RankController extends AbstractController
      */
     public function getAllRank(GameModRepository $gameModRepository, SerializerInterface $serializer): JsonResponse
     {
-        $jsonRank = $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getRank"]);
+        $context = SerializationContext::create()->setGroups(["getRank"]);
+        $jsonRank = $serializer->serialize($gameModRepository->findAll(), 'json', $context);
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -43,7 +46,8 @@ class RankController extends AbstractController
      */
     public function getOneRank(Rank $rank, SerializerInterface $serializer): JsonResponse
     {
-        $jsonRank = $serializer->serialize($rank, 'json', ["groups" => "getOneRank"]);
+        $context = SerializationContext::create()->setGroups(["getOneRank"]);
+        $jsonRank = $serializer->serialize($rank, 'json', $context);
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -90,7 +94,8 @@ class RankController extends AbstractController
      */
     public function getAllRankByGamemod(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
-        $jsonRank = $serializer->serialize($gameMod, 'json', ["groups" => "getRank"]);
+        $context = SerializationContext::create()->setGroups(["getRank"]);
+        $jsonRank = $serializer->serialize($gameMod, 'json', $context);
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -120,7 +125,8 @@ class RankController extends AbstractController
             $rank->setMmr($actualMmr += $mmr)->setStatus(true);
             $rankRepository->save($rank, true);
         }
-        $jsonRank = $serializer->serialize($rank, 'json', ["groups" => "getOneRank"]);
+        $context = SerializationContext::create()->setGroups(["getOneRank"]);
+        $jsonRank = $serializer->serialize($rank, 'json', $context);
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 }

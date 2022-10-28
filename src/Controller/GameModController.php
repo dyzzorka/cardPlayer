@@ -6,6 +6,7 @@ use App\Entity\GameMod;
 use App\Repository\GameModRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\DeserializationContext;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,10 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\Serializer;
+use JMS\Serializer\SerializationContext;
 
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
@@ -35,8 +37,8 @@ class GameModController extends AbstractController
     {
         $jsonGamemod = $tagAwareCacheInterface->get("getAllGamemod", function (ItemInterface $itemInterface) use ($gameModRepository, $serializer) {
             $itemInterface->tag("gamemodCache");
-            echo "Mise en cache";
-            return $serializer->serialize($gameModRepository->findAll(), 'json', ["groups" => "getGamemod"]);
+            $context = SerializationContext::create()->setGroups(["getGamemod"]);
+            return $serializer->serialize($gameModRepository->findAll(), 'json', $context);
         });
 
         return new JsonResponse($jsonGamemod, Response::HTTP_OK, ['accept' => 'json'], true);
@@ -53,7 +55,8 @@ class GameModController extends AbstractController
      */
     public function getOneGamemod(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
+        $context = SerializationContext::create()->setGroups(["getGamemod"]);
+        $jsonGamemodCards = $serializer->serialize($gameMod, 'json', $context);
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -68,7 +71,8 @@ class GameModController extends AbstractController
      */
     public function getAllCards(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
-        $jsonGamemodCards = $serializer->serialize($gameMod, 'json', ["groups" => "getCard"]);
+        $context = SerializationContext::create()->setGroups(["getGamemod"]);
+        $jsonGamemodCards = $serializer->serialize($gameMod, 'json', $context);
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -120,7 +124,8 @@ class GameModController extends AbstractController
     {
         $gameMod = $serializer->deserialize($request->getContent(), GameMod::class, 'json');
         $gameModRepository->save($gameMod->setStatus(true), true);
-        $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
+        $context = SerializationContext::create()->setGroups(["getGamemod"]);
+        $jsonGamemod = $serializer->serialize($gameMod, 'json', $context);
 
         $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
         return new JsonResponse($jsonGamemod, Response::HTTP_CREATED, ["Location" => $location], true);
@@ -141,10 +146,11 @@ class GameModController extends AbstractController
      */
     public function updateGamemod(GameMod $gameMod, Request $request, GameModRepository $gameModRepository, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
-        $serializer->deserialize($request->getContent(), GameMod::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $gameMod]);
+        $serializer->deserialize($request->getContent(), GameMod::class, 'json', );
 
         $gameModRepository->save($gameMod->setStatus(true), true);
-        $jsonGamemod = $serializer->serialize($gameMod, 'json', ["groups" => "getGamemod"]);
+        $context = SerializationContext::create()->setGroups(["getGamemod"]);
+        $jsonGamemod = $serializer->serialize($gameMod, 'json', $context);
 
         $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
         return new JsonResponse($jsonGamemod, Response::HTTP_OK, ["Location" => $location], true);

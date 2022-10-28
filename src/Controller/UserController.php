@@ -15,7 +15,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\Serializer;
+use JMS\Serializer\SerializationContext;
 
 #[Route('/api/user')]
 class UserController extends AbstractController
@@ -35,7 +37,8 @@ class UserController extends AbstractController
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
         $user->setStatus(true)->setRoles(['ROLE_USER'])->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
         $userRepository->save($user, true);
-        $jsonuser = $serializer->serialize($user, 'json', ["groups" => "registerResponse"]);
+        $context = SerializationContext::create()->setGroups(["registerResponse"]);
+        $jsonuser = $serializer->serialize($user, 'json', $context);
 
         return new JsonResponse($jsonuser, Response::HTTP_CREATED, [], true);
     }
@@ -49,7 +52,8 @@ class UserController extends AbstractController
      */
     public function getUserConnected(SerializerInterface $serializer): JsonResponse
     {
-        $jsonuser = $serializer->serialize($this->getUser(), 'json', ["groups" => "getUser"]);
+        $context = SerializationContext::create()->setGroups(["getUser"]);
+        $jsonuser = $serializer->serialize($this->getUser(), 'json', $context);
         return new JsonResponse($jsonuser, Response::HTTP_OK, [], true);
     }
 
@@ -64,7 +68,8 @@ class UserController extends AbstractController
      */
     public function getOneUser(User $user, SerializerInterface $serializer): JsonResponse
     {
-        $jsonuser = $serializer->serialize($user, 'json', ["groups" => "getUser"]);
+        $context = SerializationContext::create()->setGroups(["getUser"]);
+        $jsonuser = $serializer->serialize($user, 'json', $context);
         return new JsonResponse($jsonuser, Response::HTTP_OK, [], true);
     }
 

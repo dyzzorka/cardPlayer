@@ -6,8 +6,20 @@ use App\Repository\CardRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraint as Assert;
+use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+
+/**
+ *  @Hateoas\Relation(
+ *      "self", href=@Hateoas\Route(
+ *          "gamemod.all", 
+ *          parameters= {"Gamemodname" = "expr(object.getName())" }
+ *      ),
+ *      exclusion= @Hateoas\Exclusion(groups="getGamemod")
+ *  )
+ */
 
 #[ORM\Entity(repositoryClass: CardRepository::class)]
 class Card

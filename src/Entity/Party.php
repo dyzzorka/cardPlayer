@@ -5,9 +5,20 @@ namespace App\Entity;
 use App\Repository\PartyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+
+/**
+ *  @Hateoas\Relation(
+ *      "self", href=@Hateoas\Route(
+ *          "party.all"
+ *      ),
+ *      exclusion= @Hateoas\Exclusion(groups="getParty")
+ *  )
+ */
 #[ORM\Entity(repositoryClass: PartyRepository::class)]
 class Party
 {
@@ -45,6 +56,9 @@ class Party
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'parties')]
     #[Groups(["getParty"])]
     private Collection $users;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $advancement = null;
 
 
     public function __construct()
@@ -165,6 +179,18 @@ class Party
     public function setPrivate(bool $private): self
     {
         $this->private = $private;
+
+        return $this;
+    }
+
+    public function getAdvancement(): ?string
+    {
+        return $this->advancement;
+    }
+
+    public function setAdvancement(?string $advancement): self
+    {
+        $this->advancement = $advancement;
 
         return $this;
     }

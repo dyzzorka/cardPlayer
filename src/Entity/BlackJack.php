@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 
 class BlackJack
 {
@@ -22,7 +22,7 @@ class BlackJack
 
         $this->doDeck($party->getGamemod()->getCards()->toArray());
         foreach ($party->getUsers() as $user) {
-           
+
             $this->addPlayers(new Player($user));
         }
         $this->actualPlayer = $this->players[0];
@@ -36,14 +36,14 @@ class BlackJack
 
     public function addDeck(Card $card): self
     {
-       array_push($this->deck, $card);
-        
+        array_push($this->deck, $card);
+
         return $this;
     }
 
     // public function removeDeck(Card $card): self
     // {
-        
+
     //     array_splice($this->deck, array_search($this->deck, $card), 1);
     //     return $this;
     // }
@@ -59,7 +59,7 @@ class BlackJack
     public function addPlayers(Player $player): self
     {
         array_push($this->players, $player);
-        
+
         return $this;
     }
 
@@ -112,7 +112,7 @@ class BlackJack
 
     public function doDeck(array $cards): self
     {
-        
+
         for ($i = 0; $i < 6; $i++) {
             $this->deck = array_merge($this->deck, $cards);
         }
@@ -131,7 +131,7 @@ class Player
 
     public function __construct(User $user)
     {
-        
+
         $this->user = $user;
         $this->hand = new ArrayCollection();
     }
