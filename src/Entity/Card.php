@@ -26,19 +26,21 @@ class Card
     #[Groups(["getCard", "getPlay"])]
     private ?string $family = null;
 
-    #[ORM\Column(length: 8000)]
-    #[Groups(["getCard", "getPlay"])]
-    private ?string $image = null;
-
+    
     #[ORM\Column]
     private ?bool $status = null;
-
+    
     #[ORM\ManyToMany(targetEntity: GameMod::class, inversedBy: 'cards')]
     private Collection $gamemod;
+    
+    #[ORM\OneToMany(mappedBy: 'card', targetEntity: Picture::class, orphanRemoval: true)]
+    #[Groups(["getCard", "getPlay"])]
+    private Collection $image;
 
     public function __construct()
     {
         $this->gamemod = new ArrayCollection();
+        $this->image = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -66,18 +68,6 @@ class Card
     public function setFamily(string $family): self
     {
         $this->family = $family;
-
-        return $this;
-    }
-
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(string $image): self
-    {
-        $this->image = $image;
 
         return $this;
     }
@@ -114,6 +104,36 @@ class Card
     public function removeGamemod(GameMod $gamemod): self
     {
         $this->gamemod->removeElement($gamemod);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Picture>
+     */
+    public function getImage(): Collection
+    {
+        return $this->image;
+    }
+
+    public function addImage(Picture $image): self
+    {
+        if (!$this->image->contains($image)) {
+            $this->image->add($image);
+            $image->setCard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Picture $image): self
+    {
+        if ($this->image->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getCard() === $this) {
+                $image->setCard(null);
+            }
+        }
 
         return $this;
     }
