@@ -153,6 +153,7 @@ class PartyController extends AbstractController
     clear methode
     clear group 
     doc method
+    ajouter le cache ou c'est necesaire
     tiré une cards + gestion deck user
     enlever la route test ici
     */
