@@ -8,7 +8,6 @@ use JMS\Serializer\Annotation\Groups;
 
 class BlackJack
 {
-    #[Groups(["getPlay"])]
     private array $deck = [];
     #[Groups(["getPlay"])]
     private array $players = [];
@@ -19,19 +18,24 @@ class BlackJack
 
     public function __construct(Party $party)
     {
-
-        $this->doDeck($party->getGamemod()->getCards()->toArray());
         foreach ($party->getUsers() as $user) {
-
-            $this->addPlayers(new Player($user));
+            $player = new Player();
+            $this->addPlayers($player->setUser($user));
         }
+        $this->addPlayers(new Croupier());
         $this->actualPlayer = $this->players[0];
+        $this->nextPlayer = $this->players[1];
     }
-
 
     public function getDeck(): array
     {
         return $this->deck;
+    }
+
+    public function setDeck(array $deck): self
+    {
+        $this->deck = $deck;
+        return $this;
     }
 
     public function addDeck(Card $card): self
@@ -109,18 +113,7 @@ class BlackJack
 
         return $this;
     }
-
-    public function doDeck(array $cards): self
-    {
-
-        for ($i = 0; $i < 6; $i++) {
-            $this->deck = array_merge($this->deck, $cards);
-        }
-        shuffle($this->deck);
-        return $this;
-    }
 }
-
 
 class Player
 {
@@ -129,10 +122,8 @@ class Player
     #[Groups(["getPlay"])]
     private Collection $hand;
 
-    public function __construct(User $user)
+    public function __construct()
     {
-
-        $this->user = $user;
         $this->hand = new ArrayCollection();
     }
 
@@ -168,6 +159,61 @@ class Player
     public function removeHand(Card $hand): self
     {
         $this->hand->removeElement($hand);
+        return $this;
+    }
+}
+
+class Croupier extends Player
+{
+    #[Groups(["getPlay"])]
+    private string $username = "Croupier";
+
+
+    public function __construct()
+    {
+        $this->hand = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, Card>
+     */
+    public function getHand(): Collection
+    {
+        return $this->hand;
+    }
+
+    public function addHand(Card $hand): self
+    {
+        if (!$this->hand->contains($hand)) {
+            $this->hand->add($hand);
+        }
+
+        return $this;
+    }
+
+    public function removeHand(Card $hand): self
+    {
+        $this->hand->removeElement($hand);
+        return $this;
+    }
+
+    /**
+     * Get the value of username
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * Set the value of username
+     *
+     * @return  self
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+
         return $this;
     }
 }

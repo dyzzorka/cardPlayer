@@ -146,7 +146,9 @@ class GameModController extends AbstractController
      */
     public function updateGamemod(GameMod $gameMod, Request $request, GameModRepository $gameModRepository, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
-        $serializer->deserialize($request->getContent(), GameMod::class, 'json', );
+        $serializer->deserialize($request->getContent(), GameMod::class, 'json');
+
+        /* FAIRE LA DESERIALISATION A LA MAIN */
 
         $gameModRepository->save($gameMod->setStatus(true), true);
         $context = SerializationContext::create()->setGroups(["getGamemod"]);

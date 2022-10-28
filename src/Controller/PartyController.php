@@ -85,19 +85,30 @@ class PartyController extends AbstractController
 
     #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function runParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
+    public function runParty(Party $party, PartyRepository $partyRepository): JsonResponse
     {
-        $party->setRun(true);
-        $partyRepository->save($party, true);
-
         $black = new BlackJack($party);
+        $black->setDeck($partyRepository->doDeck($party));
 
         $jsonParty =  serialize($black);
 
-        $partyRepository->save($party->setAdvancement($jsonParty),true);
-        // $user = unserialize($jsonParty);
+        $party->setRun(true)->setAdvancement($jsonParty);
 
-        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
+        $partyRepository->save($party, true);
+        // $user = unserialize($jsonParty);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function advancementParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
+    {
+
+        $black =  unserialize($party->getAdvancement());
+
+        $context = SerializationContext::create()->setGroups(["getPlay"]);
+        $jsonParty = $serializer->serialize($black, 'json', $context);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
@@ -111,7 +122,7 @@ class PartyController extends AbstractController
 
         /* appliquer la baisse de mmr et autre action en cas de ff */
 
-        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]

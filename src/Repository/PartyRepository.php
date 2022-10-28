@@ -39,6 +39,17 @@ class PartyRepository extends ServiceEntityRepository
         }
     }
 
+    public function doDeck(Party $party): array
+    {
+        $cardList = $party->getGamemod()->getCards();
+        $deck = array();
+        for ($i = 0; $i < 6; $i++) {
+            $deck = array_merge($deck, $cardList);
+        }
+        shuffle($deck);
+        return $deck;
+    }
+
 //    /**
 //     * @return Party[] Returns an array of Party objects
 //     */
