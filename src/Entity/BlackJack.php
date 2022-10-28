@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation\Groups;
 
 class BlackJack
-{
+{ 
     private array $deck = [];
     #[Groups(["getPlay"])]
     private array $players = [];
@@ -52,9 +52,7 @@ class BlackJack
     //     return $this;
     // }
 
-    /**
-     * @return Collection<int, Card>
-     */
+ 
     public function getPlayers(): array
     {
         return $this->players;
@@ -168,6 +166,9 @@ class Croupier extends Player
     #[Groups(["getPlay"])]
     private string $username = "Croupier";
 
+    #[Groups(["getPlay"])]
+    private Card $backcard;
+
 
     public function __construct()
     {
@@ -213,6 +214,26 @@ class Croupier extends Player
     public function setUsername($username)
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of backcard
+     */ 
+    public function getBackcard()
+    {
+        return $this->backcard;
+    }
+
+    /**
+     * Set the value of backcard
+     *
+     * @return  self
+     */ 
+    public function setBackcard($backcard)
+    {
+        $this->backcard = $backcard;
 
         return $this;
     }

@@ -83,48 +83,6 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_CREATED, ['accept' => 'json'], true);
     }
 
-    #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
-    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function runParty(Party $party, PartyRepository $partyRepository): JsonResponse
-    {
-        $black = new BlackJack($party);
-        $black->setDeck($partyRepository->doDeck($party));
-
-        $jsonParty =  serialize($black);
-
-        $party->setRun(true)->setAdvancement($jsonParty);
-
-        $partyRepository->save($party, true);
-        // $user = unserialize($jsonParty);
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
-    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function advancementParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
-    {
-
-        $black =  unserialize($party->getAdvancement());
-
-        $context = SerializationContext::create()->setGroups(["getPlay"]);
-        $jsonParty = $serializer->serialize($black, 'json', $context);
-        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
-    }
-
-    #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
-    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
-    {
-        $user = $this->getUser();
-        if (in_array($user, $party->getUsers()->toArray())) {
-            $party->removeUser($user);
-        }
-
-        /* appliquer la baisse de mmr et autre action en cas de ff */
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
@@ -142,6 +100,49 @@ class PartyController extends AbstractController
         $partyRepository->save($party, true);
         return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
     }
+
+    #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
+    {
+        $user = $this->getUser();
+        if (in_array($user, $party->getUsers()->toArray())) {
+            $party->removeUser($user);
+        }
+
+        /* appliquer la baisse de mmr et autre action en cas de ff -> faire une methode qui reprend le update dans rankrepo */
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository): JsonResponse
+    {
+        $black = new BlackJack($party);
+        $black->setDeck($cardRepository->doDeck($party));
+        $cardRepository->distribCards($black);
+        $jsonParty =  serialize($black);
+
+        $party->setRun(true)->setAdvancement($jsonParty);
+
+        $partyRepository->save($party, true);
+        // $user = unserialize($jsonParty);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function advancementParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, CardRepository $cardRepository): JsonResponse
+    {
+        /* gerer si pas run */
+        $black =  unserialize($party->getAdvancement());
+
+        $context = SerializationContext::create()->setGroups(["getPlay"]);
+        $jsonParty = $serializer->serialize($black, 'json', $context);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
 
     #[Route('/history/{idUser}', name: 'party.historyUser', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]

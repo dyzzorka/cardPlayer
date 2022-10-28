@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\BlackJack;
 use App\Entity\Card;
+use App\Entity\Croupier;
+use App\Entity\Party;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,23 +43,39 @@ class CardRepository extends ServiceEntityRepository
         }
     }
 
-    public function doDeck(int $quantity, array $cards): array
-    {
-        $deck = array();
-        for ($i = 0; $i < $quantity; $i++) {
-            $deck =  array_merge($deck, $cards);
-        }
-        shuffle($deck);
-        return $deck;
-    }
-
-    public function pickCard(array $cards): Card {
+    public function pickCard(array &$cards): Card {
         $mycard = $cards[0];
         array_shift($cards);
         return $mycard;
     }
 
-    
+    public function doDeck(Party $party): array
+    {
+        $cardList = $party->getGamemod()->getCards()->toArray();
+        $deck = array();
+        for ($i = 0; $i < 6; $i++) {
+            $deck = array_merge($deck, $cardList);
+        }
+        shuffle($deck);
+        return $deck;
+    }
+
+    public function distribCards(BlackJack & $blackJack) {
+
+        $deck = $blackJack->getDeck();
+        for ($i = 0; $i <2; $i++) {
+            foreach($blackJack->getPlayers() as $player) {
+                if (get_class($player) == "App\Entity\Croupier" && $i == 1) {
+                    $player->setBackcard($this->pickCard($deck));
+                    $player->addHand($this->find(53));
+                } else {
+                    $player->addHand($this->pickCard($deck));
+                }
+                $blackJack->setDeck($deck);
+            }
+        }
+
+    }
 
     //    /**
     //     * @return Card[] Returns an array of Card objects
