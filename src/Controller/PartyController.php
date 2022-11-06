@@ -54,11 +54,11 @@ class PartyController extends AbstractController
             $jsonParty = $serializer->serialize($party, 'json', $context);
             return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
         } else if ($party->isFull() && !$party->isRun() && !$party->isEnd()) {
-            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is full."], Response::HTTP_LOCKED, ['accept' => 'json'], true);
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is full."], Response::HTTP_LOCKED, ['accept' => 'json']);
         } else if (!$party->isFull() && $party->isRun() && !$party->isEnd()) {
-            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is already runing."], Response::HTTP_LOCKED, ['accept' => 'json'], true);
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is already runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
         } else if (!$party->isFull() && !$party->isRun() && $party->isEnd()) {
-            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is end."], Response::HTTP_LOCKED, ['accept' => 'json'], true);
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is end."], Response::HTTP_LOCKED, ['accept' => 'json']);
         }
     }
 
@@ -122,7 +122,7 @@ class PartyController extends AbstractController
         $black = new BlackJack($party);
         $black->setDeck($cardRepository->doDeck($party));
         $cardRepository->distribCards($black);
-        $jsonParty =  serialize($black);
+        $jsonParty = serialize($black);
 
         $party->setRun(true)->setAdvancement($jsonParty);
 
@@ -135,9 +135,10 @@ class PartyController extends AbstractController
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function advancementParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, CardRepository $cardRepository): JsonResponse
     {
-        /* gerer si pas run */
-        $black =  unserialize($party->getAdvancement());
-
+        if ($party->isRun() == false) {
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game isn't runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
+        }
+        $black = unserialize($party->getAdvancement());
         $context = SerializationContext::create()->setGroups(["getPlay"]);
         $jsonParty = $serializer->serialize($black, 'json', $context);
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);

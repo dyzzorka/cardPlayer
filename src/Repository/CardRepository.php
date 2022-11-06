@@ -43,10 +43,9 @@ class CardRepository extends ServiceEntityRepository
         }
     }
 
-    public function pickCard(array &$cards): Card {
-        $mycard = $cards[0];
-        array_shift($cards);
-        return $mycard;
+    public function pickCard(array &$cards): Card
+    {
+        return array_shift($cards);
     }
 
     public function doDeck(Party $party): array
@@ -60,11 +59,12 @@ class CardRepository extends ServiceEntityRepository
         return $deck;
     }
 
-    public function distribCards(BlackJack & $blackJack) {
+    public function distribCards(BlackJack &$blackJack)
+    {
 
         $deck = $blackJack->getDeck();
-        for ($i = 0; $i <2; $i++) {
-            foreach($blackJack->getPlayers() as $player) {
+        for ($i = 0; $i < 2; $i++) {
+            foreach ($blackJack->getPlayers() as $player) {
                 if (get_class($player) == "App\Entity\Croupier" && $i == 1) {
                     $player->setBackcard($this->pickCard($deck));
                     $player->addHand($this->find(53));
@@ -74,7 +74,6 @@ class CardRepository extends ServiceEntityRepository
                 $blackJack->setDeck($deck);
             }
         }
-
     }
 
     //    /**
