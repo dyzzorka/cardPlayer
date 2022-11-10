@@ -9,6 +9,7 @@ use App\Entity\Party;
 use App\Entity\User;
 use App\Repository\CardRepository;
 use App\Repository\PartyRepository;
+use App\Repository\RankRepository;
 use App\Repository\UserRepository;
 use phpDocumentor\Reflection\Types\Boolean;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -41,36 +42,21 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/join/{partyToken}', name: 'party.join', methods: ['POST'])]
-    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function joinParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
-    {
-        if (!$party->isFull() && !$party->isRun() && !$party->isEnd()) {
-            $user = $this->getUser();
-            $party->addUser($user);
-            count($party->getUsers()) == $party->getGamemod()->getPlayerLimit() ? $party->setFull(true) : $party->setFull(false);
-            $partyRepository->save($party, true);
-            $context = SerializationContext::create()->setGroups(["getParty"]);
-            $jsonParty = $serializer->serialize($party, 'json', $context);
-            return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
-        } else if ($party->isFull() && !$party->isRun() && !$party->isEnd()) {
-            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is full."], Response::HTTP_LOCKED, ['accept' => 'json']);
-        } else if (!$party->isFull() && $party->isRun() && !$party->isEnd()) {
-            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is already runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
-        } else if (!$party->isFull() && !$party->isRun() && $party->isEnd()) {
-            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is end."], Response::HTTP_LOCKED, ['accept' => 'json']);
-        }
-    }
-
-    #[Route('/create/{Gamemodname}/{isPrivate}', name: 'party.create', methods: ['POST'])]
+    #[Route('/create/{Gamemodname}/{bet}/{isPrivate}', name: 'party.create', methods: ['POST'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
-    public function createParty(SerializerInterface $serializer, PartyRepository $partyRepository, GameMod $gameMod, string $isPrivate = "public"): JsonResponse
+    public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, string $isPrivate = "public", int $bet): JsonResponse
     {
+        $rankUser =  $rankRepository->getMmr($gameMod, $userRepository->convertUserInterfaceToUser($this->getUser()));
+        if ($rankUser < $bet || $bet < 0) {
+            $bet = $rankUser;
+        }
+
         $party = new Party();
         $party->setGamemod($gameMod)
             ->setRun(false)
             ->setEnd(false)
             ->setFull(false)
+            ->setBet($bet)
             ->setStatus(true)
             ->addUser($this->getUser())
             ->setPrivate($isPrivate == "private" ? true : false)
@@ -83,42 +69,36 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_CREATED, ['accept' => 'json'], true);
     }
 
-    #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
+    #[Route('/join/{partyToken}', name: 'party.join', methods: ['POST'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
+    public function joinParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, RankRepository $rankRepository, UserRepository $userRepository): JsonResponse
     {
-        $partyRepository->remove($party, true);
-        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
-    }
-
-
-    #[Route('/{partyToken}', name: 'party.status', methods: ['DELETE'])]
-    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function statusParty(Party $party,  PartyRepository $partyRepository): JsonResponse
-    {
-        $party->setStatus(false);
-        $partyRepository->save($party, true);
-        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
-    }
-
-    #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
-    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
-    {
-        $user = $this->getUser();
-        if (in_array($user, $party->getUsers()->toArray())) {
-            $party->removeUser($user);
+        if (!$party->isFull() && !$party->isRun() && !$party->isEnd()) {
+            if ($rankRepository->getMmr($party->getGamemod(), $userRepository->convertUserInterfaceToUser($this->getUser())) >= $party->getBet()) {
+                $user = $this->getUser();
+                $party->addUser($user);
+                count($party->getUsers()) == $party->getGamemod()->getPlayerLimit() ? $party->setFull(true) : $party->setFull(false);
+                $partyRepository->save($party, true);
+                $context = SerializationContext::create()->setGroups(["getParty"]);
+                $jsonParty = $serializer->serialize($party, 'json', $context);
+                return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+            } else {
+                return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "you don't have enough credit"], Response::HTTP_LOCKED, ['accept' => 'json']);
+            }
+        } else if ($party->isFull() && !$party->isRun() && !$party->isEnd()) {
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is full."], Response::HTTP_LOCKED, ['accept' => 'json']);
+        } else if (!$party->isFull() && $party->isRun() && !$party->isEnd()) {
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is already runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
+        } else if (!$party->isFull() && !$party->isRun() && $party->isEnd()) {
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is end."], Response::HTTP_LOCKED, ['accept' => 'json']);
         }
-
-        /* appliquer la baisse de mmr et autre action en cas de ff -> faire une methode qui reprend le update dans rankrepo */
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository): JsonResponse
+    public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository): JsonResponse
     {
+        $rankRepository->payMmr($party);
         $black = new BlackJack($party);
         $black->setDeck($cardRepository->doDeck($party));
         $cardRepository->distribCards($black);
@@ -144,6 +124,16 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
+    {
+        $user = $this->getUser();
+        if (in_array($user, $party->getUsers()->toArray())) {
+            $party->removeUser($user);
+        }
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
 
     #[Route('/history/{idUser}', name: 'party.historyUser', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
@@ -155,6 +145,25 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
+    {
+        $partyRepository->remove($party, true);
+        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
+    }
+
+
+    #[Route('/{partyToken}', name: 'party.status', methods: ['DELETE'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function statusParty(Party $party,  PartyRepository $partyRepository): JsonResponse
+    {
+        $party->setStatus(false);
+        $partyRepository->save($party, true);
+        return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
+    }
+
+
     /*Rest a faire 
 
     Historique ...
@@ -163,6 +172,7 @@ class PartyController extends AbstractController
     les truc de location
     clear group 
     doc method
+    gerer les acces
     ajouter le cache ou c'est necesaire
     tiré une cards + gestion deck user
     enlever la route test ici

@@ -60,6 +60,9 @@ class Party
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $advancement = null;
 
+    #[ORM\Column]
+    #[Groups(["getParty", "getPartyHistory"])]
+    private ?int $bet = null;
 
     public function __construct()
     {
@@ -191,6 +194,18 @@ class Party
     public function setAdvancement(?string $advancement): self
     {
         $this->advancement = $advancement;
+
+        return $this;
+    }
+
+    public function getBet(): ?int
+    {
+        return $this->bet;
+    }
+
+    public function setBet(int $bet): self
+    {
+        $this->bet = $bet;
 
         return $this;
     }

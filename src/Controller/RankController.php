@@ -115,18 +115,8 @@ class RankController extends AbstractController
      */
     public function updateRank(GameMod $gameMod, User $user, /*changer le system mmr si on a le temps -->*/ int $mmr, RankRepository $rankRepository, SerializerInterface $serializer): JsonResponse
     {
-        $rank = $rankRepository->findOneBy(array("gamemod" => $gameMod, "user" => $user));
-        if ($rank === null) {
-            $rank = new Rank();
-            $rank->setUser($user)->setGamemod($gameMod)->setMmr($mmr)->setStatus(true);
-            $rankRepository->save($rank, true);
-        } else {
-            $actualMmr = $rank->getMmr();
-            $rank->setMmr($actualMmr += $mmr)->setStatus(true);
-            $rankRepository->save($rank, true);
-        }
         $context = SerializationContext::create()->setGroups(["getOneRank"]);
-        $jsonRank = $serializer->serialize($rank, 'json', $context);
+        $jsonRank = $serializer->serialize($rankRepository->updateOrCreateRank($gameMod, $user, $mmr), 'json', $context);
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 }
