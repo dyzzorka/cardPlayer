@@ -128,9 +128,8 @@ class PartyController extends AbstractController
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
-        $user = $this->getUser();
-        if (in_array($user, $party->getUsers()->toArray())) {
-            $party->removeUser($user);
+        if (in_array($this->getUser(), $party->getUsers()->toArray())) {
+            $party->removeUser($this->getUser());
         }
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
