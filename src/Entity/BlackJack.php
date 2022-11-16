@@ -8,6 +8,9 @@ use JMS\Serializer\Annotation\Groups;
 
 class BlackJack
 { 
+
+    private Party $party;
+
     private array $deck = [];
     #[Groups(["getPlay"])]
     private array $players = [];
@@ -18,6 +21,8 @@ class BlackJack
 
     public function __construct(Party $party)
     {
+        $this->party = $party;
+        
         foreach ($party->getUsers() as $user) {
             $player = new Player();
             $this->addPlayers($player->setUser($user));
@@ -25,6 +30,14 @@ class BlackJack
         $this->addPlayers(new Croupier());
         $this->actualPlayer = $this->players[0];
         $this->nextPlayer = $this->players[1];
+    }
+
+    /**
+     * Get the value of party
+     */ 
+    public function getParty()
+    {
+        return $this->party;
     }
 
     public function getDeck(): array
@@ -65,11 +78,11 @@ class BlackJack
         return $this;
     }
 
-    // public function removePlayers(Player $player): self
-    // {
-    //     $this->players->removeElement($player);
-    //     return $this;
-    // }
+    public function removePlayers(Player $player): self
+    {
+        unset($this->players[array_search($player, $this->players)]);
+        return $this;
+    }
 
 
     /**

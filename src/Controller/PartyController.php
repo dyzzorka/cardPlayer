@@ -44,7 +44,7 @@ class PartyController extends AbstractController
 
     #[Route('/create/{Gamemodname}/{bet}/{isPrivate}', name: 'party.create', methods: ['POST'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
-    public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, string $isPrivate = "public", int $bet): JsonResponse
+    public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, int $bet, string $isPrivate = "public"): JsonResponse
     {
         $rankUser =  $rankRepository->getMmr($gameMod, $userRepository->convertUserInterfaceToUser($this->getUser()));
         if ($rankUser < $bet || $bet < 0) {
@@ -98,7 +98,7 @@ class PartyController extends AbstractController
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository): JsonResponse
     {
-        $rankRepository->payMmr($party);
+        $rankRepository->payMmr($party); /* -> mmr nul si new joueur */
         $black = new BlackJack($party);
         $black->setDeck($cardRepository->doDeck($party));
         $cardRepository->distribCards($black);
@@ -107,7 +107,25 @@ class PartyController extends AbstractController
         $party->setRun(true)->setAdvancement($jsonParty);
 
         $partyRepository->save($party, true);
-        // $user = unserialize($jsonParty);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/play/{partyToken}/{action}', name: 'party.play', methods: ['POST'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function playParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository, UserRepository $userRepository, string $action = "stand"): JsonResponse
+    {
+
+        $blackJack = unserialize($party->getAdvancement());
+
+        if ($userRepository->convertUserInterfaceToUser($this->getUser())->getId() != $blackJack->getActualPlayer()->getUser()->getId()) {
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "It is not up to you to play."], Response::HTTP_LOCKED, ['accept' => 'json']);
+        }
+
+        $blackJack = $partyRepository->play($blackJack,  $action);
+
+        $party->setAdvancement(serialize($blackJack));
+        $partyRepository->save($party, true);
+
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
@@ -134,16 +152,6 @@ class PartyController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/history/{idUser}', name: 'party.historyUser', methods: ['GET'])]
-    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
-    public function getHistoryByUser(?User $user, SerializerInterface $serializer): JsonResponse
-    {
-        $user == null ? $this->getUser() : $user = $user;
-        $context = SerializationContext::create()->setGroups(["getPartyHistory"]);
-        $jsonParty = $serializer->serialize($user, 'json', $context);
-        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
-    }
-
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
@@ -162,9 +170,22 @@ class PartyController extends AbstractController
         return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
     }
 
+    #[Route('/history/{idUser}', name: 'party.historyUser', methods: ['GET'])]
+    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    public function getHistoryByUser(?User $user, SerializerInterface $serializer): JsonResponse
+    {
+        $user == null ? $this->getUser() : $user = $user;
+        $context = SerializationContext::create()->setGroups(["getPartyHistory"]);
+        $jsonParty = $serializer->serialize($user, 'json', $context);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
 
     /*Rest a faire 
 
+
+    Refaire les route
+    pb mmr new player
     Historique ...
     clear http response
     clear methode
