@@ -131,25 +131,7 @@ class BlackJack
         return $this;
     }
 
-        /**
-     * Get the value of backcard
-     */ 
-    public function getBackcard()
-    {
-        return $this->backcard;
-    }
 
-    /**
-     * Set the value of backcard
-     *
-     * @return  self
-     */ 
-    public function setBackcard($backcard)
-    {
-        $this->backcard = $backcard;
-
-        return $this;
-    }
 }
 
 class Player
@@ -279,6 +261,26 @@ class Croupier extends Player
     public function setUsername($username)
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+            /**
+     * Get the value of backcard
+     */ 
+    public function getBackcard()
+    {
+        return $this->backcard;
+    }
+
+    /**
+     * Set the value of backcard
+     *
+     * @return  self
+     */ 
+    public function setBackcard($backcard)
+    {
+        $this->backcard = $backcard;
 
         return $this;
     }

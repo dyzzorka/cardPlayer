@@ -136,7 +136,7 @@ class PartyController extends AbstractController
 
         $blackJack = unserialize($party->getAdvancement());
 
-        if ($userRepository->convertUserInterfaceToUser($this->getUser())->getId() != $blackJack->getActualPlayer()->getUser()->getId()) {
+        if (get_class($blackJack->getActualPlayer()) == "App\Entity\Croupier" || $userRepository->convertUserInterfaceToUser($this->getUser())->getId() != $blackJack->getActualPlayer()->getUser()->getId()) {
             return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "It is not up to you to play."], Response::HTTP_LOCKED, ['accept' => 'json']);
         }
 

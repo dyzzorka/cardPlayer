@@ -61,25 +61,27 @@ class PartyRepository extends ServiceEntityRepository
         switch ($action) {
             case "hit":
                 $blackJack = $this->hit($blackJack);
+                $split = true;
                 break;
             case "stand":
                 break;
             case "double":
                 $blackJack = $this->hit($blackJack);
-                $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()));
+                $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()->getUser()));
                 $this->rankRepository->save($rank->setMmr($rank->getMmr() - $blackJack->getParty()->getBet()));
                 $blackJack->getActualPlayer()->setChoice("double");
                 break;
             case "split":
-                $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()));
+                
+                $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()->getUser()));
                 $this->rankRepository->save($rank->setMmr($rank->getMmr() - $blackJack->getParty()->getBet()));
-                $blackJack->getActualPlayer()->setChoice("split");
+                $blackJack->getActualPlayer()->setChoice("double");
 
-                $blackJack->setPlayers($this->array_insert(
-                    $blackJack->getPlayers(),
-                    array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1,
-                    $blackJack->getActualPlayer()
-                ));
+                $players = $blackJack->getPlayers();
+                array_splice($players, array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1, 0, $blackJack->getActualPlayer());/* -> pb y comprend que c'est une array */
+                $blackJack->setPlayers($players);
+
+                dd($blackJack);
                 $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1]);
                 unset($blackJack->getActualPlayer()[1]);
                 unset($blackJack->getNextPlayer()[0]);
@@ -118,20 +120,7 @@ class PartyRepository extends ServiceEntityRepository
         return $blackJack;
     }
 
-    function array_insert($array, $position, $insert): array
-    {
-        if (is_int($position)) {
-            array_splice($array, $position, 0, $insert);
-        } else {
-            $pos   = array_search($position, array_keys($array));
-            $array = array_merge(
-                array_slice($array, 0, $pos),
-                $insert,
-                array_slice($array, $pos)
-            );
-        }
-        return $array;
-    }
+
 
     //    /**
     //     * @return Party[] Returns an array of Party objects
