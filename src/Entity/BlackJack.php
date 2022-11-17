@@ -15,9 +15,9 @@ class BlackJack
     #[Groups(["getPlay"])]
     private array $players = [];
     #[Groups(["getPlay"])]
-    private Player $actualPlayer;
+    private ?Player $actualPlayer;
     #[Groups(["getPlay"])]
-    private Player $nextPlayer;
+    private ?Player $nextPlayer;
 
     public function __construct(Party $party)
     {
@@ -78,6 +78,12 @@ class BlackJack
         return $this;
     }
 
+    public function setPlayers(array $players): self
+    {
+        $this->players = $players;
+        return $this;
+    }
+
     public function removePlayers(Player $player): self
     {
         unset($this->players[array_search($player, $this->players)]);
@@ -124,6 +130,26 @@ class BlackJack
 
         return $this;
     }
+
+        /**
+     * Get the value of backcard
+     */ 
+    public function getBackcard()
+    {
+        return $this->backcard;
+    }
+
+    /**
+     * Set the value of backcard
+     *
+     * @return  self
+     */ 
+    public function setBackcard($backcard)
+    {
+        $this->backcard = $backcard;
+
+        return $this;
+    }
 }
 
 class Player
@@ -132,6 +158,8 @@ class Player
     private User $user;
     #[Groups(["getPlay"])]
     private Collection $hand;
+
+    private ?string $choice; 
 
     public function __construct()
     {
@@ -170,6 +198,30 @@ class Player
     public function removeHand(Card $hand): self
     {
         $this->hand->removeElement($hand);
+        return $this;
+    }
+
+    /**
+     * Get the value of choice
+     *
+     * @return string
+     */
+    public function getChoice(): string
+    {
+        return $this->choice;
+    }
+
+    /**
+     * Set the value of choice
+     *
+     * @param string $choice
+     *
+     * @return self
+     */
+    public function setChoice(string $choice): self
+    {
+        $this->choice = $choice;
+
         return $this;
     }
 }
@@ -231,23 +283,4 @@ class Croupier extends Player
         return $this;
     }
 
-    /**
-     * Get the value of backcard
-     */ 
-    public function getBackcard()
-    {
-        return $this->backcard;
-    }
-
-    /**
-     * Set the value of backcard
-     *
-     * @return  self
-     */ 
-    public function setBackcard($backcard)
-    {
-        $this->backcard = $backcard;
-
-        return $this;
-    }
 }

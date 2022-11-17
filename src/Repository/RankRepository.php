@@ -59,7 +59,11 @@ class RankRepository extends ServiceEntityRepository
 
     public function getMmr(GameMod $gameMod, User $user): int
     {
-        $result =  $this->findOneBy(array("gamemod" => $gameMod, "user" => $user))->getMmr() ?? $result = -1;
+        if ($this->findOneBy(array("gamemod" => $gameMod, "user" => $user)) == null) {
+            $result = -1;
+        } else {
+            $result = $this->findOneBy(array("gamemod" => $gameMod, "user" => $user))->getMmr();
+        }
         return $result;
     }
 
@@ -71,6 +75,7 @@ class RankRepository extends ServiceEntityRepository
             $this->save($rank, true);
         }
     }
+
     //    /**
     //     * @return Rank[] Returns an array of Rank objects
     //     */

@@ -6,6 +6,7 @@ use App\Entity\BlackJack;
 use App\Entity\Card;
 use App\Entity\GameMod;
 use App\Entity\Party;
+use App\Entity\Rank;
 use App\Entity\User;
 use App\Repository\CardRepository;
 use App\Repository\PartyRepository;
@@ -47,8 +48,17 @@ class PartyController extends AbstractController
     public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, int $bet, string $isPrivate = "public"): JsonResponse
     {
         $rankUser =  $rankRepository->getMmr($gameMod, $userRepository->convertUserInterfaceToUser($this->getUser()));
-        if ($rankUser < $bet || $bet < 0) {
-            $bet = $rankUser;
+        if ($rankUser == -1) {
+            $rank = new Rank();
+            $rank->setGamemod($gameMod)->setUser($this->getUser())->setMmr(15)->setStatus(true);
+            $rankRepository->save($rank, true);
+            if ($rank->getMmr() < $bet || $bet < 0) {
+                $bet = $rank->getMmr();
+            }
+        } else {
+            if ($rankUser < $bet || $bet < 0) {
+                $bet = $rankUser;
+            }
         }
 
         $party = new Party();
@@ -74,7 +84,16 @@ class PartyController extends AbstractController
     public function joinParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, RankRepository $rankRepository, UserRepository $userRepository): JsonResponse
     {
         if (!$party->isFull() && !$party->isRun() && !$party->isEnd()) {
-            if ($rankRepository->getMmr($party->getGamemod(), $userRepository->convertUserInterfaceToUser($this->getUser())) >= $party->getBet()) {
+            $mmr = $rankRepository->getMmr($party->getGamemod(), $userRepository->convertUserInterfaceToUser($this->getUser()));
+            if (
+                $mmr >= $party->getBet() ||
+                $mmr == -1 && $party->getBet() <= 15
+            ) {
+                if ($mmr == -1) {
+                    $rank = new Rank();
+                    $rank->setGamemod($party->getGamemod())->setUser($this->getUser())->setMmr(15)->setStatus(true);
+                    $rankRepository->save($rank, true);
+                }
                 $user = $this->getUser();
                 $party->addUser($user);
                 count($party->getUsers()) == $party->getGamemod()->getPlayerLimit() ? $party->setFull(true) : $party->setFull(false);
@@ -98,7 +117,7 @@ class PartyController extends AbstractController
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository): JsonResponse
     {
-        $rankRepository->payMmr($party); /* -> mmr nul si new joueur */
+        $rankRepository->payMmr($party);
         $black = new BlackJack($party);
         $black->setDeck($cardRepository->doDeck($party));
         $cardRepository->distribCards($black);
@@ -122,6 +141,10 @@ class PartyController extends AbstractController
         }
 
         $blackJack = $partyRepository->play($blackJack,  $action);
+
+        // if (get_class($blackJack->getActualPlayer()) == "App\Entity\Croupier") {
+        //     $partyRepository->playCroupiers($blackJack);
+        // }
 
         $party->setAdvancement(serialize($blackJack));
         $partyRepository->save($party, true);
@@ -194,6 +217,7 @@ class PartyController extends AbstractController
     doc method
     gerer les acces
     ajouter le cache ou c'est necesaire
+    
     tiré une cards + gestion deck user
     enlever la route test ici
 

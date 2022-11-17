@@ -113,6 +113,7 @@ class AppFixtures extends Fixture
             $pv = random_int(0, 1);
             $party->setToken(md5(random_bytes(100) . $user->getUserIdentifier()))
                 ->setGamemod($gm)
+                ->setBet(10)
                 ->setRun($run)
                 ->setEnd($end)
                 ->setFull($full)

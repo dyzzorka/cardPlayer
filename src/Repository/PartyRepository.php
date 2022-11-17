@@ -19,10 +19,12 @@ use Symfony\Component\Validator\Constraints\Blank;
 class PartyRepository extends ServiceEntityRepository
 {
     private CardRepository $cardkRepo;
+    private RankRepository $rankRepository;
 
-    public function __construct(ManagerRegistry $registry, CardRepository $cardkRepo)
+    public function __construct(ManagerRegistry $registry, CardRepository $cardkRepo, RankRepository $rankRepository)
     {
         $this->cardkRepo = $cardkRepo;
+        $this->rankRepository = $rankRepository;
         parent::__construct($registry, Party::class);
     }
 
@@ -44,6 +46,12 @@ class PartyRepository extends ServiceEntityRepository
         }
     }
 
+    public function playCroupiers(BlackJack $blackJack)
+    {
+        dd("end game");
+        return $blackJack;
+    }
+
     public function play(BlackJack $blackJack, string $action): BlackJack
     {
 
@@ -54,25 +62,34 @@ class PartyRepository extends ServiceEntityRepository
             case "stand":
                 break;
             case "double":
-                echo "i égal 0";
+                $blackJack = $this->hit($blackJack);
+                $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()));
+                $this->rankRepository->save($rank->setMmr($rank->getMmr() - $blackJack->getParty()->getBet()));
+                $blackJack->getActualPlayer()->setChoice("double");
                 break;
             case "split":
-                echo "i égal 0";
+
+                $blackJack->getActualPlayer()->setChoice("split");
+                $blackJack->setPlayers($this->array_insert(
+                    $blackJack->getPlayers(),
+                    array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1,
+                    $blackJack->getActualPlayer()
+                ));
+                $blackJack->setNextPlayer(array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1);
+
+
                 break;
             case "surrend":
-                $blackJack->getParty()->removeUser($blackJack->getActualPlayer()->getUser());
-                $blackJack->removePlayers($blackJack->getActualPlayer());
                 break;
         }
 
         $blackJack->setActualPlayer($blackJack->getNextPlayer());
         if (get_class($blackJack->getNextPlayer()) != "App\Entity\Croupier") {
+
             $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getNextPlayer(), $blackJack->getPlayers()) + 1]);
         } else {
             $blackJack->setNextPlayer(null);
         }
-
-
         return $blackJack;
     }
 
@@ -81,6 +98,21 @@ class PartyRepository extends ServiceEntityRepository
         $deck = $blackJack->getDeck();
         $blackJack->getActualPlayer()->addHand($this->cardkRepo->pickCard($deck));
         return $blackJack;
+    }
+
+    function array_insert($array, $position, $insert): array
+    {
+        if (is_int($position)) {
+            array_splice($array, $position, 0, $insert);
+        } else {
+            $pos   = array_search($position, array_keys($array));
+            $array = array_merge(
+                array_slice($array, 0, $pos),
+                $insert,
+                array_slice($array, $pos)
+            );
+        }
+        return $array;
     }
 
     //    /**
