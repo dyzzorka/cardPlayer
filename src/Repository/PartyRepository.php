@@ -4,8 +4,10 @@ namespace App\Repository;
 
 use App\Entity\BlackJack;
 use App\Entity\Party;
+use App\Entity\Player;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Component\Validator\Constraints\Blank;
 
 /**
@@ -54,6 +56,7 @@ class PartyRepository extends ServiceEntityRepository
 
     public function play(BlackJack $blackJack, string $action): BlackJack
     {
+        $split = false;
 
         switch ($action) {
             case "hit":
@@ -68,28 +71,36 @@ class PartyRepository extends ServiceEntityRepository
                 $blackJack->getActualPlayer()->setChoice("double");
                 break;
             case "split":
-
+                $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()));
+                $this->rankRepository->save($rank->setMmr($rank->getMmr() - $blackJack->getParty()->getBet()));
                 $blackJack->getActualPlayer()->setChoice("split");
+
                 $blackJack->setPlayers($this->array_insert(
                     $blackJack->getPlayers(),
                     array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1,
                     $blackJack->getActualPlayer()
                 ));
-                $blackJack->setNextPlayer(array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1);
-
-
+                $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1]);
+                unset($blackJack->getActualPlayer()[1]);
+                unset($blackJack->getNextPlayer()[0]);
+                $blackJack = $this->hitAfterSplit($blackJack, $blackJack->getActualPlayer());
+                $blackJack = $this->hitAfterSplit($blackJack, $blackJack->getNextPlayer());
+                $split = true;
                 break;
             case "surrend":
                 break;
         }
 
-        $blackJack->setActualPlayer($blackJack->getNextPlayer());
-        if (get_class($blackJack->getNextPlayer()) != "App\Entity\Croupier") {
+        if ($split == false) {
+            $blackJack->setActualPlayer($blackJack->getNextPlayer());
+            if (get_class($blackJack->getNextPlayer()) != "App\Entity\Croupier") {
 
-            $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getNextPlayer(), $blackJack->getPlayers()) + 1]);
-        } else {
-            $blackJack->setNextPlayer(null);
+                $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getNextPlayer(), $blackJack->getPlayers()) + 1]);
+            } else {
+                $blackJack->setNextPlayer(null);
+            }
         }
+
         return $blackJack;
     }
 
@@ -97,6 +108,13 @@ class PartyRepository extends ServiceEntityRepository
     {
         $deck = $blackJack->getDeck();
         $blackJack->getActualPlayer()->addHand($this->cardkRepo->pickCard($deck));
+        return $blackJack;
+    }
+
+    private function hitAfterSplit(BlackJack $blackJack, Player $player): BlackJack
+    {
+        $deck = $blackJack->getDeck();
+        $player->addHand($this->cardkRepo->pickCard($deck));
         return $blackJack;
     }
 
