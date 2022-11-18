@@ -123,22 +123,22 @@ class AppFixtures extends Fixture
             $manager->flush();
         }
 
-        for ($i = 0; $i < 300; $i++) {
+        // for ($i = 0; $i < 300; $i++) {
 
-            $mmr = random_int(10, 45);
-            $user = $users[random_int(0, 24)];
-            $gameMod = $games[random_int(0, 9)];
+        //     $mmr = random_int(10, 45);
+        //     $user = $users[random_int(0, 24)];
+        //     $gameMod = $games[random_int(0, 9)];
 
-            $rank = $this->rankRepository->findOneBy(array("gamemod" => $gameMod, "user" => $user));
-            if ($rank === null) {
-                $rank = new Rank();
-                $rank->setUser($user)->setGamemod($gameMod)->setMmr($mmr)->setStatus(true);
-                $this->rankRepository->save($rank, true);
-            } else {
-                $actualMmr = $rank->getMmr();
-                $rank->setMmr($actualMmr += $mmr)->setStatus(true);
-                $this->rankRepository->save($rank, true);
-            }
-        }
+        //     $rank = $this->rankRepository->findOneBy(array("gamemod" => $gameMod, "user" => $user));
+        //     if ($rank === null) {
+        //         $rank = new Rank();
+        //         $rank->setUser($user)->setGamemod($gameMod)->setMmr($mmr)->setStatus(true);
+        //         $this->rankRepository->save($rank, true);
+        //     } else {
+        //         $actualMmr = $rank->getMmr();
+        //         $rank->setMmr($actualMmr += $mmr)->setStatus(true);
+        //         $this->rankRepository->save($rank, true);
+        //     }
+        // }
     }
 }

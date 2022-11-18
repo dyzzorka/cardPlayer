@@ -19,13 +19,23 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
 {
     #[Route('/', name: 'gamemod.all', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the rewards of an user',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: GameMod::class, groups: ['getGamemod']))
+        )
+    )]
+    #[OA\Tag(name: 'GameMod')]
     /**
-     * Function to get all GameMod.
+     * Function to get all GameMods.
      *
      * @param GameModRepository $gameModRepository
      * @param SerializerInterface $serializer
@@ -44,8 +54,9 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}', name: 'gamemod.one', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[OA\Tag(name: 'GameMod')]
     /**
-     * Function to get one GameMod.
+     * Function to get one GameMods.
      *
      * @param GameMod $gameMod
      * @param SerializerInterface $serializer
@@ -59,6 +70,7 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}/cards', name: 'gamemod.card', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[OA\Tag(name: 'GameMod')]
     /**
      * Function to get all cards from a deck in GameMod.
      * 
@@ -75,6 +87,7 @@ class GameModController extends AbstractController
     #[Route('/{Gamemodname}/delete', name: 'gamemod.delete', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'GameMod')]
     /**
      * Function that removes a GameMode.
      *
@@ -92,6 +105,7 @@ class GameModController extends AbstractController
     #[Route('/{Gamemodname}', name: 'gamemod.status', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'GameMod')]
     /**
      * Function that changes the status of a GameMod.
      *
@@ -107,6 +121,7 @@ class GameModController extends AbstractController
 
     #[Route('/', name: 'gamemod.add', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'GameMod')]
     /**
      * Function for add a GameMod
      *
@@ -129,6 +144,7 @@ class GameModController extends AbstractController
     #[Route('/{Gamemodname}', name: 'gamemod.update', methods: ['PUT'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'GameMod')]
     /**
      * Function for update a GameMod
      *

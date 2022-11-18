@@ -16,11 +16,13 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/user')]
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'user.register', methods: ['POST'])]
+    #[OA\Tag(name: 'User')]
     /**
      * Function that allows a user to register.
      *
@@ -41,6 +43,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/view', name: 'user.view', methods: ['GET'])]
+    #[OA\Tag(name: 'User')]
     /**
      * Function get information of the user connected
      *
@@ -55,6 +58,7 @@ class UserController extends AbstractController
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[OA\Tag(name: 'User')]
     /**
      * Function get information of a user
      *
@@ -71,6 +75,7 @@ class UserController extends AbstractController
     #[Route('/{idUser}', name: 'user.status', methods: ['DELETE'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'User')]
     /**
      * Function that changes the status of a User.
      *
@@ -88,6 +93,7 @@ class UserController extends AbstractController
     #[Route('/{idUser}/delete', name: 'user.delete', methods: ['DELETE'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'User')]
     /**
      * Function that removes a User.
      *

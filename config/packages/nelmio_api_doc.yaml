@@ -14,7 +14,7 @@ nelmio_api_doc:
           in: header
     security:
       - Bearer: []
- 
+
     paths:
       /api/login_check:
         post:
@@ -48,7 +48,7 @@ nelmio_api_doc:
             "400":
               description: Invalid JSON.
           security: []
- 
+
       /api/token/refresh:
         post:
           tags:
@@ -77,7 +77,7 @@ nelmio_api_doc:
             "401":
               description: An authentication exception occurred.
           security: []
- 
+
   areas: # to filter documented areas
     path_patterns:
       - ^/api(?!(/doc|/doc.json|/token/refresh)$)

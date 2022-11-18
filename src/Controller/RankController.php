@@ -14,11 +14,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/rank')]
 class RankController extends AbstractController
 {
     #[Route('/', name: 'rank.getAll', methods: ['GET'])]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function that returns the list of ranks sorted by gamemod.
      *
@@ -34,8 +36,9 @@ class RankController extends AbstractController
 
     #[Route('/{RankId}', name: 'rank.one', methods: ['GET'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[OA\Tag(name: 'Rank')]
     /**
-     * 
+     * Get the rank from the RankId
      *
      * @param Rank $rank
      * @param SerializerInterface $serializer
@@ -50,6 +53,7 @@ class RankController extends AbstractController
     #[Route('/{RankId}/delete', name: 'rank.delete', methods: ['DELETE'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function for delete a rank.
      *
@@ -66,6 +70,7 @@ class RankController extends AbstractController
     #[Route('/{RankId}', name: 'rank.status', methods: ['DELETE'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function for change status of a rank.
      *
@@ -81,6 +86,7 @@ class RankController extends AbstractController
 
     #[Route('/gamemod/{Gamemodname}', name: 'rank.getAllInGamemod', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function that returns the list of ranks for a gamemod.
      *
@@ -98,6 +104,7 @@ class RankController extends AbstractController
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function that changes a player’s rank on a gamemod if rank entity not exist create automatically
      *
