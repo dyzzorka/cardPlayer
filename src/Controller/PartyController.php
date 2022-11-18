@@ -26,7 +26,12 @@ use Symfony\Component\Validator\Constraints\Blank;
 #[Route('/api/party')]
 class PartyController extends AbstractController
 {
-    #[Route('/', name: 'party.getAll', methods: ['GET'])]
+    #[Route('/', name: 'party.all', methods: ['GET'])]
+    #[OA\Tag(name: 'Party')]
+    /**
+     * Function to get all Party.
+     *
+     */
     public function getAll(SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getParty"]);

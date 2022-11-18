@@ -16,11 +16,13 @@ use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/rank')]
 class RankController extends AbstractController
 {
     #[Route('/', name: 'rank.getAll', methods: ['GET'])]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function that returns the list of ranks sorted by gamemod.
      *
@@ -35,10 +37,11 @@ class RankController extends AbstractController
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/{RankId}', name: 'rank.getOne', methods: ['GET'])]
+    #[Route('/{RankId}', name: 'rank.one', methods: ['GET'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[OA\Tag(name: 'Rank')]
     /**
-     * 
+     * Get the rank from the RankId
      *
      * @param Rank $rank
      * @param SerializerInterface $serializer
@@ -54,6 +57,7 @@ class RankController extends AbstractController
     #[Route('/{RankId}/delete', name: 'rank.delete', methods: ['DELETE'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function for delete a rank.
      *
@@ -70,6 +74,7 @@ class RankController extends AbstractController
     #[Route('/{RankId}', name: 'rank.status', methods: ['DELETE'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function for change status of a rank.
      *
@@ -85,6 +90,7 @@ class RankController extends AbstractController
 
     #[Route('/gamemod/{Gamemodname}', name: 'rank.getAllInGamemod', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function that returns the list of ranks for a gamemod.
      *
@@ -99,9 +105,11 @@ class RankController extends AbstractController
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/update/{RankId}/{mmr}', name: 'gamemod.update', methods: ['PUT'])]
-    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[Route('/update/{Gamemodname}/{idUser}/{mmr}', name: 'gamemod.update', methods: ['PUT'])]
+    #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     /**
      * Function that changes a player’s rank on a gamemod if rank entity not exist create automatically
      *
