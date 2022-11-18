@@ -42,21 +42,13 @@ class RankRepository extends ServiceEntityRepository
         }
     }
 
-    public function updateOrCreateRank(GameMod $gameMod, User $user, int $mmr): Rank
-    {
-        $rank = $this->findOneBy(array("gamemod" => $gameMod, "user" => $user));
-        if ($rank === null) {
-            $rank = new Rank();
-            $rank->setUser($user)->setGamemod($gameMod)->setMmr($mmr)->setStatus(true);
-            $this->save($rank, true);
-        } else {
-            $actualMmr = $rank->getMmr();
-            $rank->setMmr($actualMmr += $mmr)->setStatus(true);
-            $this->save($rank, true);
-        }
-        return $rank;
-    }
-
+    /**
+     * function that retrieves the rank with the user and the gamemod
+     *
+     * @param GameMod $gameMod
+     * @param User $user
+     * @return integer
+     */
     public function getMmr(GameMod $gameMod, User $user): int
     {
         if ($this->findOneBy(array("gamemod" => $gameMod, "user" => $user)) == null) {
@@ -67,6 +59,12 @@ class RankRepository extends ServiceEntityRepository
         return $result;
     }
 
+    /**
+     * function that charges players (in MMR)
+     *
+     * @param Party $party
+     * @return void
+     */
     public function payMmr(Party $party)
     {
         foreach ($party->getUsers() as $user) {

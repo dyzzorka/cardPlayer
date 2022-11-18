@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints\Blank;
 #[Route('/api/party')]
 class PartyController extends AbstractController
 {
-    #[Route('/', name: 'party.all', methods: ['GET'])]
+    #[Route('/', name: 'party.getAll', methods: ['GET'])]
     public function getAll(SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getParty"]);
@@ -34,7 +34,7 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/{partyToken}', name: 'party.one', methods: ['GET'])]
+    #[Route('/{partyToken}', name: 'party.getOne', methods: ['GET'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function getOneParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
@@ -150,7 +150,7 @@ class PartyController extends AbstractController
 
     #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function advancementParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, CardRepository $cardRepository): JsonResponse
+    public function advancementParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         if ($party->isRun() == false) {
             return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game isn't runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
@@ -163,7 +163,7 @@ class PartyController extends AbstractController
 
     #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
+    public function leaveParty(Party $party): JsonResponse
     {
         if ($party->isRun() == false) {
             if (in_array($this->getUser(), $party->getUsers()->toArray())) {
@@ -215,9 +215,6 @@ class PartyController extends AbstractController
 
     /*Rest a faire 
 
-    Refaire les route
-    clear http response
-    clear methode
     les truc de location
     clear group 
     doc method

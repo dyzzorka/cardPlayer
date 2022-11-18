@@ -57,14 +57,6 @@ class BlackJack
 
         return $this;
     }
-
-    // public function removeDeck(Card $card): self
-    // {
-
-    //     array_splice($this->deck, array_search($this->deck, $card), 1);
-    //     return $this;
-    // }
-
  
     public function getPlayers(): array
     {

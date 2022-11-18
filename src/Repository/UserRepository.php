@@ -43,6 +43,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
     }
 
+    /**
+     * function that convert UserInterface in User (Entity)
+     *
+     * @param UserInterface $user
+     * @return User
+     */
     public function convertUserInterfaceToUser(UserInterface $user): User
     {
         return $this->findOneBy(["username" => $user->getUserIdentifier()]);

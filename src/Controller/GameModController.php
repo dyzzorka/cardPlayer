@@ -25,7 +25,7 @@ use JMS\Serializer\SerializationContext;
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
 {
-    #[Route('/', name: 'gamemod.all', methods: ['GET'])]
+    #[Route('/', name: 'gamemod.getAll', methods: ['GET'])]
     /**
      * Function to get all GameMod.
      *
@@ -44,7 +44,7 @@ class GameModController extends AbstractController
         return new JsonResponse($jsonGamemod, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/{Gamemodname}', name: 'gamemod.one', methods: ['GET'])]
+    #[Route('/{Gamemodname}', name: 'gamemod.getOne', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
      * Function to get one GameMod.
@@ -60,7 +60,7 @@ class GameModController extends AbstractController
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/{Gamemodname}/cards', name: 'gamemod.card', methods: ['GET'])]
+    #[Route('/{Gamemodname}/cards', name: 'gamemod.getCard', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
      * Function to get all cards from a deck in GameMod.

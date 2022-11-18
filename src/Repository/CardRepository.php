@@ -42,12 +42,23 @@ class CardRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
+/**
+ * function that hit a cart from the deck
+ *
+ * @param array $cards
+ * @return Card
+ */
     public function pickCard(array &$cards): Card
     {
         return array_shift($cards);
     }
 
+    /**
+     * function that initializate the deck
+     *
+     * @param Party $party
+     * @return array
+     */
     public function doDeck(Party $party): array
     {
         $cardList = $party->getGamemod()->getCards()->toArray();
@@ -59,6 +70,13 @@ class CardRepository extends ServiceEntityRepository
         return $deck;
     }
 
+
+/**
+ * function that distributes the cards
+ *
+ * @param BlackJack $blackJack
+ * @return void
+ */
     public function distribCards(BlackJack &$blackJack)
     {
 

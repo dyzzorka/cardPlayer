@@ -55,6 +55,12 @@ class PartyRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * function that play the Croupier of the game
+     *
+     * @param BlackJack $blackJack
+     * @return void
+     */
     public function playCroupiers(BlackJack $blackJack)
     {
         foreach ($blackJack->getPlayers() as $player) {
@@ -63,13 +69,17 @@ class PartyRepository extends ServiceEntityRepository
                 $croupier->getHand()[1] = $croupier->getBackcard();
             }
         }
-        $blackJack->getPlayers()[0]->getHand()[0]->setValue(10);
-        $blackJack->getPlayers()[0]->getHand()[2]->setValue(1);
-        $blackJack->getPlayers()[0]->setChoice("blackjack");
 
         $this->payPlayers($blackJack, $croupier);
     }
 
+    /**
+     * function that pay player a the end game and creat and history of this party
+     *
+     * @param BlackJack $blackJack
+     * @param Croupier $croupier
+     * @return void
+     */
     private function payPlayers(BlackJack $blackJack, Croupier $croupier)
     {
         $this->countLoose($croupier, $blackJack);
@@ -94,6 +104,12 @@ class PartyRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * function that return a coef of the gain
+     *
+     * @param Player $player
+     * @return float
+     */
     private function findGain(Player $player): float
     {
         if ($player->getResultGame() == "win") {
@@ -118,6 +134,13 @@ class PartyRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * function that count and set loose/win in the player
+     *
+     * @param Croupier $croupier
+     * @param BlackJack $blackJack
+     * @return integer
+     */
     private function countLoose(Croupier $croupier, BlackJack &$blackJack): int
     {
         $countLoose = 0;
@@ -140,6 +163,13 @@ class PartyRepository extends ServiceEntityRepository
         return $countLoose;
     }
 
+    /**
+     * function that play for the player with his instruction
+     *
+     * @param BlackJack $blackJack
+     * @param string $action
+     * @return BlackJack
+     */
     public function play(BlackJack $blackJack, string $action): BlackJack
     {
         $split = false;
@@ -192,6 +222,13 @@ class PartyRepository extends ServiceEntityRepository
         return $blackJack;
     }
 
+    /**
+     * function for hit card ans add in hand of player
+     *
+     * @param BlackJack $blackJack
+     * @param Player $player
+     * @return BlackJack
+     */
     private function hit(BlackJack $blackJack, Player $player): BlackJack
     {
         $deck = $blackJack->getDeck();
@@ -199,6 +236,12 @@ class PartyRepository extends ServiceEntityRepository
         return $blackJack;
     }
 
+    /**
+     * function that count point of his card
+     *
+     * @param Player $player
+     * @return integer
+     */
     private function countPoint(Player $player): int
     {
         $point = 0;

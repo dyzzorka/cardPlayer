@@ -35,7 +35,7 @@ class RankController extends AbstractController
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/{RankId}', name: 'rank.one', methods: ['GET'])]
+    #[Route('/{RankId}', name: 'rank.getOne', methods: ['GET'])]
     #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     /**
      * 
@@ -99,9 +99,8 @@ class RankController extends AbstractController
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    #[Route('/update/{Gamemodname}/{idUser}/{mmr}', name: 'gamemod.update', methods: ['PUT'])]
-    #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
-    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[Route('/update/{RankId}/{mmr}', name: 'gamemod.update', methods: ['PUT'])]
+    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
     /**
      * Function that changes a player’s rank on a gamemod if rank entity not exist create automatically
@@ -113,10 +112,11 @@ class RankController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function updateRank(GameMod $gameMod, User $user, /*changer le system mmr si on a le temps -->*/ int $mmr, RankRepository $rankRepository, SerializerInterface $serializer): JsonResponse
+    public function updateRank(Rank $rank, int $mmr, RankRepository $rankRepository, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getOneRank"]);
-        $jsonRank = $serializer->serialize($rankRepository->updateOrCreateRank($gameMod, $user, $mmr), 'json', $context);
+        $rankRepository->save($rank->setMmr($rank->getMmr() - $mmr), true);
+        $jsonRank = $serializer->serialize($rank, 'json', $context);
         return new JsonResponse($jsonRank, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 }
