@@ -216,8 +216,9 @@ class PartyController extends AbstractController
     /*Rest a faire 
 
     les truc de location
-    clear group 
     doc method
+    
+    clear group 
     gerer les acces
     ajouter le cache ou c'est necesaire
 
