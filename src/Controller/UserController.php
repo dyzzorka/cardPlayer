@@ -23,7 +23,6 @@ use JMS\Serializer\SerializationContext;
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'user.register', methods: ['POST'])]
-    
     /**
      * Function that allows a user to register.
      *
@@ -36,6 +35,7 @@ class UserController extends AbstractController
     public function register(Request $request, UserRepository $userRepository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+
         $user->setStatus(true)->setRoles(['ROLE_USER'])->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
         $userRepository->save($user, true);
         $context = SerializationContext::create()->setGroups(["registerResponse"]);
