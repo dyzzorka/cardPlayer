@@ -7,4 +7,7 @@ Ce projet est relalisé par Yohan VOLLAIRE / yohan.vollaire@ynov.com et Antoine 
 Afin d'utiliser cette API en local, suivez les instructions ci-dessous  
  * __A compléter quand ce sera finis__ avec ```morceaux de code```
 
+Doc for imagick install if there is an error like I had : (imagick download)[https://mlocati.github.io/articles/php-windows-imagick.html]
+
 Bonne parties avec CardPlayer !
+
