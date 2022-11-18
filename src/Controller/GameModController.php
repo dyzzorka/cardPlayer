@@ -27,19 +27,15 @@ class GameModController extends AbstractController
     #[Route('/', name: 'gamemod.all', methods: ['GET'])]
     #[OA\Response(
         response: 200,
-        description: 'Returns the rewards of an user',
+        description: 'Successful response',
         content: new OA\JsonContent(
             type: 'array',
-            items: new OA\Items(ref: new Model(type: GameMod::class, groups: ['getGamemod']))
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
         )
     )]
     #[OA\Tag(name: 'GameMod')]
     /**
      * Function to get all GameMods.
-     *
-     * @param GameModRepository $gameModRepository
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
      */
     public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
