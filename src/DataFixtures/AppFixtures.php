@@ -37,37 +37,73 @@ class AppFixtures extends Fixture
         // ANCHOR INSERT ALL CARDS
 
         // $output = new ConsoleOutput();
-        $json = file_get_contents(__DIR__.'/cards.json');
-        $json = json_decode($json);
         $count = 1;
         $family = ['club', 'diamond', 'heart', 'spade'];
         $family_count = 0;
-        $im = imagecreatefrompng('example.png'); 
-        $im = gd_info();
-        foreach($json as $key => $value) {
-            $card = new Card();
+
+        // $package = new Package(new EmptyVersionStrategy());
+
+        // $imagick = new \Imagick('svg-cards.png');
+        // $imagick->cropImage(30, 30, 0, 0);
+        // header("Content-Type: image/jpg");
+        // var_dump($imagick->getImageBlob());
+
+        // foreach($json as $key => $value) {
+        //     $card->setValue(1)
+        //         ->addImage($picture)
+        //         ->setStatus(true)
+        //         ->setFamily($family[$family_count]);
+        //     $manager->persist($card);
+
+        // }
+
+        $package = new Package(new EmptyVersionStrategy());
+        $var = [
+            "63760877afb32_1_club.png",
+        ];
+        $countColumn = 0;
+        $countRows = 0;
+        $width = 168;
+        $height = 244;
+        $family = ['club', 'diamond', 'heart', 'spade'];
+
+        while (1){
+
+            $relativeLocation = ".." . $this->toGenericPath('..','public','assets', 'picture', 'svg-cards.png');
+
             $picture = new Picture();
-            dd( );
-            $picture->setFile($files)
-                    ->setMimeType($files->getClientMimeType())
-                    ->setRealName($files->getClientOriginalName())
-                    ->setPublicPath('assets/pictures')
-                    ->setStatus(true)
-                    ->setUploadDate(new \DateTime());
-            $card->setValue($count)
+            $picture->setFile($imagick->getImageBlob())
+                ->setMimeType($files->getClientMimeType())
+                ->setRealName($files->getClientOriginalName())
+                ->setPublicPath('assets/pictures')
+                ->setStatus(true)
+                ->setUploadDate(new \DateTime())
+            ;
+            $card = new Card();
+            $card->setValue($countColumn+1)
                 ->addImage($picture)
                 ->setStatus(true)
-                ->setFamily($family[$family_count]);
-            if ($count==13){
-                $count = 1;
-                $family_count++;
-            }else{
-                $count++;
-            }
-            $manager->persist($picture);
-            $manager->persist($card);
+                ->setFamily($family[$countRows])
+            ;
+            $picture->setCard($card);
 
+            //$relativeLocation = '.\assets\picture' . DIRECTORY_SEPARATOR . 'svg-cards.png';
+            // $imagick = new \Imagick($relativeLocation);
+            // $imagick->cropImage(168, 242, $countColumn*$width, $countRows*$height);
+            // $imagick->thumbnailImage($width, $height);
+            // $imagick->writeimage($countColumn+1 .'_'.$family[$countRows].'.png');
+            // if ($countColumn==12 && $countRows == 3){
+            //     break;
+            // }else if ($countColumn==12){
+            //     $countColumn = 0;
+            //     $countRows++;
+            // }else{
+            //     $countColumn++;
+            // }
+            // $manager->persist($card);
+            // $manager->persist($picture);
         }
+        $manager->flush();
 
         // Set all cards 
 
@@ -75,83 +111,6 @@ class AppFixtures extends Fixture
         // $game = new GameMod;
         // $game->setName('président')->setDescription('Jeu du président')->setPlayerLimit(4)->setStatus(true);
         // $manager->persist($game);
-        $manager->flush();
-
-
-        $userUser = new User();
-        $userUser->setUsername("admin")->setRoles(['ROLE_ADMIN'])->setPassword($this->passwordHasher->hashPassword($userUser, "password"))->setStatus(true);
-        $manager->persist($userUser);
-        $manager->flush();
-
-
-        $cards = $this->cardRepository->findAll();
-
-        $users = array();
-        for ($i = 0; $i < 25; $i++) {
-            $user = new User();
-            $user->setUsername("user" . $i)
-                ->setRoles(['ROLE_USER'])
-                ->setPassword($this->passwordHasher->hashPassword($userUser, "user" . $i))
-                ->setStatus(true);
-
-            $manager->persist($user);
-            $manager->flush();
-            array_push($users, $user);
-        }
-        $games = array();
-        for ($i = 0; $i < 10; $i++) {
-            $game = new GameMod();
-
-            $game->setName("gamemod" . $i)
-                ->setDescription("lalala")
-                ->setPlayerLimit($i)
-                ->setStatus(true);
-
-            foreach ($cards as $card) {
-                $game->addCard($card);
-            }
-
-            $manager->persist($game);
-            $manager->flush();
-            array_push($games, $game);
-        }
-
-        for ($i = 0; $i < 300; $i++) {
-            $party = new Party();
-            $user = $users[random_int(0, 24)];
-            $gm = $games[random_int(0, 9)];
-            $run = random_int(0, 1);
-            $end = random_int(0, 1);
-            $full = random_int(0, 1);
-            $pv = random_int(0, 1);
-            $party->setToken(md5(random_bytes(100) . $user->getUserIdentifier()))
-                ->setGamemod($gm)
-                ->setRun($run)
-                ->setEnd($end)
-                ->setFull($full)
-                ->setPrivate($pv)
-                ->setStatus(true)
-                ->addUser($user);
-            $manager->persist($party);
-            $manager->flush();
-        }
-
-        for ($i = 0; $i < 300; $i++) {
-
-            $mmr = random_int(10, 45);
-            $user = $users[random_int(0, 24)];
-            $gameMod = $games[random_int(0, 9)];
-
-            $rank = $this->rankRepository->findOneBy(array("gamemod" => $gameMod, "user" => $user));
-            if ($rank === null) {
-                $rank = new Rank();
-                $rank->setUser($user)->setGamemod($gameMod)->setMmr($mmr)->setStatus(true);
-                $this->rankRepository->save($rank, true);
-            } else {
-                $actualMmr = $rank->getMmr();
-                $rank->setMmr($actualMmr += $mmr)->setStatus(true);
-                $this->rankRepository->save($rank, true);
-            }
-        }
+        // $manager->flush();
     }
 }
