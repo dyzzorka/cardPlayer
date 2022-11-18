@@ -26,11 +26,11 @@ class GameMod
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank", "getParty", "getCard"])]
+    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank", "getParty", "getCard","getPartyHistory","getPartyHistoryByParty"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank", "getParty", "getCard"])]
+    #[Groups(["getGamemod", "getUser", "getRank", "getOneRank", "getParty", "getCard","getPartyHistory","getPartyHistoryByParty"])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]

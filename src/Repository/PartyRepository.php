@@ -3,11 +3,14 @@
 namespace App\Repository;
 
 use App\Entity\BlackJack;
+use App\Entity\Croupier;
 use App\Entity\Party;
+use App\Entity\PartyHistory;
 use App\Entity\Player;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use phpDocumentor\Reflection\Types\Boolean;
+use PhpParser\Node\Expr\Cast\Double;
 use Symfony\Component\Validator\Constraints\Blank;
 
 /**
@@ -22,10 +25,14 @@ class PartyRepository extends ServiceEntityRepository
 {
     private CardRepository $cardkRepo;
     private RankRepository $rankRepository;
+    private PartyHistoryRepository $partyHistoryRepository;
+    private UserRepository $userRepository;
 
-    public function __construct(ManagerRegistry $registry, CardRepository $cardkRepo, RankRepository $rankRepository)
+    public function __construct(ManagerRegistry $registry, CardRepository $cardkRepo, RankRepository $rankRepository, PartyHistoryRepository $partyHistoryRepository, UserRepository $userRepository)
     {
         $this->cardkRepo = $cardkRepo;
+        $this->partyHistoryRepository = $partyHistoryRepository;
+        $this->userRepository = $userRepository;
         $this->rankRepository = $rankRepository;
         parent::__construct($registry, Party::class);
     }
@@ -50,8 +57,87 @@ class PartyRepository extends ServiceEntityRepository
 
     public function playCroupiers(BlackJack $blackJack)
     {
-        dd("end game");
-        return $blackJack;
+        foreach ($blackJack->getPlayers() as $player) {
+            if (get_class($player) == "App\Entity\Croupier") {
+                $croupier = $player;
+                $croupier->getHand()[1] = $croupier->getBackcard();
+            }
+        }
+        $blackJack->getPlayers()[0]->getHand()[0]->setValue(10);
+        $blackJack->getPlayers()[0]->getHand()[2]->setValue(1);
+        $blackJack->getPlayers()[0]->setChoice("blackjack");
+
+        $this->payPlayers($blackJack, $croupier);
+    }
+
+    private function payPlayers(BlackJack $blackJack, Croupier $croupier)
+    {
+        $this->countLoose($croupier, $blackJack);
+        $party = $this->find($blackJack->getParty()->getId());
+        $bet = $party->getBet();
+
+        foreach ($blackJack->getPlayers() as $player) {
+            if (get_class($player) != "App\Entity\Croupier") {
+                $user = $this->userRepository->find($player->getUser()->getId());
+                $result = $player->getResultGame();
+                $optionChoise = $player->getChoice();
+                $gain = ($bet * $this->findGain($player)) - $bet;
+
+                $history = new PartyHistory();
+                $this->partyHistoryRepository->save($history->setParty($party)
+                    ->setUser($user)
+                    ->setGain($gain)
+                    ->setResultGame($result)
+                    ->setOptionChoice($optionChoise)
+                    ->setStatus(true), true);
+            }
+        }
+    }
+
+    private function findGain(Player $player): float
+    {
+        if ($player->getResultGame() == "win") {
+            switch ($player->getChoice()) {
+                case "classic":
+                    return 2.0;
+                    break;
+                case "blackjack":
+                    return 2.5;
+                    break;
+                case "double":
+                    return 4.0;
+                    break;
+                case "split":
+                    return 2.0;
+                    break;
+                default:
+                    return 2.0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    private function countLoose(Croupier $croupier, BlackJack &$blackJack): int
+    {
+        $countLoose = 0;
+        $croupierPoint = $this->countPoint($croupier);
+        if ($croupierPoint <= 21) {
+            foreach ($blackJack->getPlayers() as $player) {
+                if ($this->countPoint($player) < $croupierPoint) {
+                    $countLoose++;
+                    $player->setResultGame("loose");
+                } else {
+                    $player->setResultGame("win");
+                }
+            }
+            if ($countLoose == 0) {
+                $deck = $blackJack->getDeck();
+                $croupier->addHand($this->cardkRepo->pickCard($deck));
+                $countLoose = $this->countLoose($croupier, $blackJack);
+            }
+        }
+        return $countLoose;
     }
 
     public function play(BlackJack $blackJack, string $action): BlackJack
@@ -60,64 +146,83 @@ class PartyRepository extends ServiceEntityRepository
 
         switch ($action) {
             case "hit":
-                $blackJack = $this->hit($blackJack);
+                $blackJack = $this->hit($blackJack, $blackJack->getActualPlayer());
                 $split = true;
+                $blackJack->getActualPlayer()->setChoice("classic");
                 break;
             case "stand":
+                if ($this->countPoint($blackJack->getActualPlayer()) == 21) {
+                    $blackJack->getActualPlayer()->setChoice("blackjack");
+                } else {
+                    $blackJack->getActualPlayer()->setChoice("classic");
+                }
                 break;
             case "double":
-                $blackJack = $this->hit($blackJack);
+                $blackJack = $this->hit($blackJack, $blackJack->getActualPlayer());
                 $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()->getUser()));
                 $this->rankRepository->save($rank->setMmr($rank->getMmr() - $blackJack->getParty()->getBet()));
                 $blackJack->getActualPlayer()->setChoice("double");
                 break;
             case "split":
-                
                 $rank = $this->rankRepository->findOneBy(array("gamemod" => $blackJack->getParty()->getGamemod(), "user" => $blackJack->getActualPlayer()->getUser()));
                 $this->rankRepository->save($rank->setMmr($rank->getMmr() - $blackJack->getParty()->getBet()));
-                $blackJack->getActualPlayer()->setChoice("double");
-
+                $blackJack->getActualPlayer()->setChoice("split");
                 $players = $blackJack->getPlayers();
-                array_splice($players, array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1, 0, $blackJack->getActualPlayer());/* -> pb y comprend que c'est une array */
+                $new_player = new Player();
+                $new_player->setUser(clone $blackJack->getActualPlayer()->getUser())->setChoice($blackJack->getActualPlayer()->getChoice())->addHand(clone $blackJack->getActualPlayer()->getHand()[1]);
+                array_splice($players, array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1, 0, [$new_player]);
                 $blackJack->setPlayers($players);
-
-                dd($blackJack);
                 $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getActualPlayer(), $blackJack->getPlayers()) + 1]);
-                unset($blackJack->getActualPlayer()[1]);
-                unset($blackJack->getNextPlayer()[0]);
-                $blackJack = $this->hitAfterSplit($blackJack, $blackJack->getActualPlayer());
-                $blackJack = $this->hitAfterSplit($blackJack, $blackJack->getNextPlayer());
+                $blackJack->getActualPlayer()->getHand()->removeElement($blackJack->getActualPlayer()->getHand()[1]);
+                $deck = $blackJack->getDeck();
+                $blackJack->getActualPlayer()->addHand($this->cardkRepo->pickCard($deck));
+                $blackJack->getNextPlayer()->addHand($this->cardkRepo->pickCard($deck));
                 $split = true;
-                break;
-            case "surrend":
                 break;
         }
 
         if ($split == false) {
             $blackJack->setActualPlayer($blackJack->getNextPlayer());
             if (get_class($blackJack->getNextPlayer()) != "App\Entity\Croupier") {
-
                 $blackJack->setNextPlayer($blackJack->getPlayers()[array_search($blackJack->getNextPlayer(), $blackJack->getPlayers()) + 1]);
             } else {
                 $blackJack->setNextPlayer(null);
             }
         }
-
         return $blackJack;
     }
 
-    private function hit(BlackJack $blackJack): BlackJack
-    {
-        $deck = $blackJack->getDeck();
-        $blackJack->getActualPlayer()->addHand($this->cardkRepo->pickCard($deck));
-        return $blackJack;
-    }
-
-    private function hitAfterSplit(BlackJack $blackJack, Player $player): BlackJack
+    private function hit(BlackJack $blackJack, Player $player): BlackJack
     {
         $deck = $blackJack->getDeck();
         $player->addHand($this->cardkRepo->pickCard($deck));
         return $blackJack;
+    }
+
+    private function countPoint(Player $player): int
+    {
+        $point = 0;
+        $ass = 0;
+        foreach ($player->getHand() as $card) {
+            if ($card->getValue() == 1) {
+                $ass++;
+            } else if ($card->getValue() >= 10) {
+                $point += 10;
+            } else {
+                $point += $card->getValue();
+            }
+        }
+        if ($ass != 0) {
+            for ($i = 0; $i <= $ass; $i++) {
+                if ($point > 10) {
+                    $point += 1;
+                } else {
+                    $point += 11;
+                }
+            }
+        }
+
+        return $point;
     }
 
 

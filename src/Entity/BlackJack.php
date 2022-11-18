@@ -143,6 +143,8 @@ class Player
 
     private ?string $choice; 
 
+    private ?string $resultGame;
+
     public function __construct()
     {
         $this->hand = new ArrayCollection();
@@ -166,6 +168,12 @@ class Player
     public function getHand(): Collection
     {
         return $this->hand;
+    }
+
+    public function setHand(Collection $hand): Player
+    {
+        $this->hand = $hand;
+        return $this;
     }
 
     public function addHand(Card $hand): self
@@ -206,6 +214,26 @@ class Player
 
         return $this;
     }
+
+        /**
+     * Get the value of resultGame
+     */ 
+    public function getResultGame()
+    {
+        return $this->resultGame;
+    }
+
+    /**
+     * Set the value of resultGame
+     *
+     * @return  self
+     */ 
+    public function setResultGame($resultGame)
+    {
+        $this->resultGame = $resultGame;
+
+        return $this;
+    }
 }
 
 class Croupier extends Player
@@ -222,28 +250,7 @@ class Croupier extends Player
         $this->hand = new ArrayCollection();
     }
 
-    /**
-     * @return Collection<int, Card>
-     */
-    public function getHand(): Collection
-    {
-        return $this->hand;
-    }
 
-    public function addHand(Card $hand): self
-    {
-        if (!$this->hand->contains($hand)) {
-            $this->hand->add($hand);
-        }
-
-        return $this;
-    }
-
-    public function removeHand(Card $hand): self
-    {
-        $this->hand->removeElement($hand);
-        return $this;
-    }
 
     /**
      * Get the value of username

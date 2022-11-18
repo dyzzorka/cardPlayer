@@ -131,25 +131,21 @@ class PartyController extends AbstractController
 
     #[Route('/play/{partyToken}/{action}', name: 'party.play', methods: ['POST'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
-    public function playParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository, UserRepository $userRepository, string $action = "stand"): JsonResponse
+    public function playParty(Party $party, PartyRepository $partyRepository, UserRepository $userRepository, string $action = "stand"): JsonResponse
     {
 
         $blackJack = unserialize($party->getAdvancement());
-
         if (get_class($blackJack->getActualPlayer()) == "App\Entity\Croupier" || $userRepository->convertUserInterfaceToUser($this->getUser())->getId() != $blackJack->getActualPlayer()->getUser()->getId()) {
             return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "It is not up to you to play."], Response::HTTP_LOCKED, ['accept' => 'json']);
         }
-
         $blackJack = $partyRepository->play($blackJack,  $action);
-
-        // if (get_class($blackJack->getActualPlayer()) == "App\Entity\Croupier") {
-        //     $partyRepository->playCroupiers($blackJack);
-        // }
-
+        if (get_class($blackJack->getActualPlayer()) == "App\Entity\Croupier") {
+            $partyRepository->playCroupiers($blackJack);
+        }
         $party->setAdvancement(serialize($blackJack));
         $partyRepository->save($party, true);
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new JsonResponse($blackJack, Response::HTTP_OK, ['accept' => 'json']);
     }
 
     #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
@@ -169,10 +165,14 @@ class PartyController extends AbstractController
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     public function leaveParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
-        if (in_array($this->getUser(), $party->getUsers()->toArray())) {
-            $party->removeUser($this->getUser());
+        if ($party->isRun() == false) {
+            if (in_array($this->getUser(), $party->getUsers()->toArray())) {
+                $party->removeUser($this->getUser());
+            }
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        } else {
+            return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game is already runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
         }
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
@@ -193,9 +193,9 @@ class PartyController extends AbstractController
         return new JsonResponse([], Response::HTTP_NO_CONTENT, ['accept' => 'json'], true);
     }
 
-    #[Route('/history/{idUser}', name: 'party.historyUser', methods: ['GET'])]
+    #[Route('/history/user/{idUser}', name: 'party.historyUser', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
-    public function getHistoryByUser(?User $user, SerializerInterface $serializer): JsonResponse
+    public function getHistoryByUser(User $user, SerializerInterface $serializer): JsonResponse
     {
         $user == null ? $this->getUser() : $user = $user;
         $context = SerializationContext::create()->setGroups(["getPartyHistory"]);
@@ -203,13 +203,19 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    #[Route('/history/party/{partyToken}', name: 'party.history', methods: ['GET'])]
+    #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    public function getHistoryParty(Party $party, SerializerInterface $serializer): JsonResponse
+    {
+        $context = SerializationContext::create()->setGroups(["getPartyHistoryByParty"]);
+        $jsonParty = $serializer->serialize($party, 'json', $context);
+        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
 
     /*Rest a faire 
 
-
     Refaire les route
-    pb mmr new player
-    Historique ...
     clear http response
     clear methode
     les truc de location
@@ -217,9 +223,6 @@ class PartyController extends AbstractController
     doc method
     gerer les acces
     ajouter le cache ou c'est necesaire
-    
-    tiré une cards + gestion deck user
-    enlever la route test ici
 
     */
 }

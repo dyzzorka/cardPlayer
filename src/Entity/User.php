@@ -17,10 +17,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getPartyHistory", "getPlay"])]
+    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getPartyHistory", "getPlay","getPartyHistoryByParty"])]
     private ?int $id = null;
     
-    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getParty", "getPartyHistory", "getPlay"])]
+    #[Groups(["getUser", "registerResponse", "getRank", "getOneRank", "getParty", "getParty", "getPartyHistory", "getPlay","getPartyHistoryByParty"])]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $username = null;
 
@@ -38,16 +38,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $ranks;
 
     #[ORM\ManyToMany(targetEntity: Party::class, inversedBy: 'users')]
-    #[Groups(["getPartyHistory"])]
     private Collection $parties;
 
     #[ORM\Column]
     private ?bool $status = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PartyHistory::class, orphanRemoval: true)]
+    #[Groups(["getPartyHistory"])]
+    private Collection $partyHistories;
+
     public function __construct()
     {
         $this->ranks = new ArrayCollection();
         $this->parties = new ArrayCollection();
+        $this->partyHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -182,6 +186,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setStatus(bool $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PartyHistory>
+     */
+    public function getPartyHistories(): Collection
+    {
+        return $this->partyHistories;
+    }
+
+    public function addPartyHistory(PartyHistory $partyHistory): self
+    {
+        if (!$this->partyHistories->contains($partyHistory)) {
+            $this->partyHistories->add($partyHistory);
+            $partyHistory->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePartyHistory(PartyHistory $partyHistory): self
+    {
+        if ($this->partyHistories->removeElement($partyHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($partyHistory->getUser() === $this) {
+                $partyHistory->setUser(null);
+            }
+        }
 
         return $this;
     }

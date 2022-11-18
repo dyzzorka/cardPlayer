@@ -28,12 +28,12 @@ class Party
     private ?int $id = null;
 
     #[ORM\Column(length: 500)]
-    #[Groups(["getParty", "getPartyHistory"])]
+    #[Groups(["getParty", "getPartyHistory","getPartyHistoryByParty"])]
     private ?string $token = null;
 
     #[ORM\ManyToOne(inversedBy: 'parties')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getParty", "getPartyHistory"])]
+    #[Groups(["getParty", "getPartyHistory","getPartyHistoryByParty"])]
     private ?GameMod $gamemod = null;
 
     #[ORM\Column]
@@ -47,7 +47,7 @@ class Party
     private ?bool $full = null;
 
     #[ORM\Column]
-    #[Groups(["getParty", "getPartyHistory"])]
+    #[Groups(["getParty", "getPartyHistory","getPartyHistoryByParty"])]
     private ?bool $private = null;
 
     #[ORM\Column]
@@ -64,10 +64,15 @@ class Party
     #[Groups(["getParty", "getPartyHistory"])]
     private ?int $bet = null;
 
+    #[ORM\OneToMany(mappedBy: 'party', targetEntity: PartyHistory::class, orphanRemoval: true)]
+    #[Groups(["getPartyHistoryByParty"])]
+    private Collection $partyHistories;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->partyHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -206,6 +211,36 @@ class Party
     public function setBet(int $bet): self
     {
         $this->bet = $bet;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PartyHistory>
+     */
+    public function getPartyHistories(): Collection
+    {
+        return $this->partyHistories;
+    }
+
+    public function addPartyHistory(PartyHistory $partyHistory): self
+    {
+        if (!$this->partyHistories->contains($partyHistory)) {
+            $this->partyHistories->add($partyHistory);
+            $partyHistory->setParty($this);
+        }
+
+        return $this;
+    }
+
+    public function removePartyHistory(PartyHistory $partyHistory): self
+    {
+        if ($this->partyHistories->removeElement($partyHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($partyHistory->getParty() === $this) {
+                $partyHistory->setParty(null);
+            }
+        }
 
         return $this;
     }
