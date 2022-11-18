@@ -25,7 +25,9 @@ use JMS\Serializer\SerializationContext;
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
 {
+
     #[Route('/', name: 'gamemod.getAll', methods: ['GET'])]
+    
     /**
      * Function to get all GameMod.
      *

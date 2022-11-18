@@ -23,6 +23,7 @@ use JMS\Serializer\SerializationContext;
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'user.register', methods: ['POST'])]
+    
     /**
      * Function that allows a user to register.
      *
@@ -59,6 +60,7 @@ class UserController extends AbstractController
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[IsGranted('ROLE_ADMIN')]
     /**
      * Function get information of a user
      *

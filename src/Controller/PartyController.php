@@ -21,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints\Blank;
 
 #[Route('/api/party')]
@@ -177,6 +178,7 @@ class PartyController extends AbstractController
 
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[IsGranted('ROLE_ADMIN')]
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $partyRepository->remove($party, true);
@@ -186,6 +188,7 @@ class PartyController extends AbstractController
 
     #[Route('/{partyToken}', name: 'party.status', methods: ['DELETE'])]
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[IsGranted('ROLE_ADMIN')]
     public function statusParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $party->setStatus(false);
@@ -212,14 +215,13 @@ class PartyController extends AbstractController
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-
     /*Rest a faire 
 
     les truc de location
     doc method
-    
+    Auto-decouvrabilité
+
     clear group 
-    gerer les acces
     ajouter le cache ou c'est necesaire
 
     */
