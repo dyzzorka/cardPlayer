@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Picture;
+use App\Entity\Card;
+use App\Repository\GameModRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,18 +30,80 @@ class PictureController extends AbstractController
     }
 
     #[Route('/create', name: 'picture.create', methods:['POST'])]
-    public function createPicture(Request $request, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, SerializerInterface $serializer): JsonResponse
+    public function createPicture(Request $request, EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, SerializerInterface $serializer, GameModRepository $gameModRepository): JsonResponse
     {
-        $picture = new Picture();
+
         $files = $request->files->get('file');
-        $picture->setFile($files)
-        ->setMimeType($files->getClientMimeType())
-        ->setRealName($files->getClientOriginalName())
-        ->setPublicPath('assets/pictures')
-        ->setStatus(true)
-        ->setUploadDate(new \DateTime())
-        ;
-        $entityManager->persist($picture);
+        $countColumn = 0;
+        $countRows = 0;
+        $width = 168;
+        $height = 244;
+        $family = ['club', 'diamond', 'heart', 'spade'];
+
+        $path = $files->getPathName();
+        $imgBase64 = file_get_contents(realpath($files->getPathName()));
+
+        while (1){
+
+            $card = new Card();
+            $picture = new Picture();
+            $picture
+                ->setFile($files)
+                ->setMimeType($files->getClientMimeType())
+                ->setRealName($files->getClientOriginalName())
+                ->setPublicPath('assets/pictures')
+                ->setStatus(true)
+                ->setUploadDate(new \DateTime())
+            ;
+
+            $filename = $files->getClientOriginalName();
+            $valueAndFamily = (string)$countColumn+1 . '_' . $family[$countRows];
+
+            $card->setValue((int)$valueAndFamily[0])
+                ->setFamily(explode('.', $valueAndFamily[1])[0])
+                ->setStatus(true)
+                ->addGamemod($gameModRepository->findOneBySomeField('blackjack'))
+            ;
+
+            // $fp = fopen('\assets\pictures\test.png', 'wp');
+            // fwrite($fp, file_get_contents($files->getPathName()));
+            // fclose($fp);
+
+            $imagick = new \Imagick('.\assets\pictures\test.png');
+            // $imagick->readimageblob($imgBase64);
+            $imagick->cropImage(168, 242, $countColumn*$width, $countRows*$height);
+            $imagick->thumbnailImage($width, $height);
+            $imagick->writeimage($countColumn+1 .'_'.$family[$countRows].'.png');
+            if ($countColumn==12 && $countRows == 3){
+                break;
+            }else if ($countColumn==12){
+                $countColumn = 0;
+                $countRows++;
+            }else{
+                $countColumn++;
+            }
+            $entityManager->persist($card);
+            $entityManager->persist($picture);
+        }
+
+        // $picture
+        //     ->setFile($files)
+        //     ->setMimeType($files->getClientMimeType())
+        //     ->setRealName($files->getClientOriginalName())
+        //     ->setPublicPath('assets/pictures')
+        //     ->setStatus(true)
+        //     ->setUploadDate(new \DateTime())
+        // ;
+
+        // $filename = $files->getClientOriginalName();
+        // $valueAndFamily = explode('_', $filename);
+
+        // $card->setValue((int)$valueAndFamily[0])
+        //     ->setFamily(explode('.', $valueAndFamily[1])[0])
+        //     ->setStatus(true)
+        //     ->addGamemod($gameModRepository->findOneBySomeField('blackjack'))
+        // ;
+
         $entityManager->flush();
 
         $jsonPicture = $serializer->serialize($picture, 'json', ["groups" => "GetPicture"]);

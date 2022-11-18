@@ -39,6 +39,7 @@ class Card
     {
         $this->gamemod = new ArrayCollection();
         $this->image = new ArrayCollection();
+        $this->Card = new ArrayCollection();
     }
 
     public function getId(): ?int
