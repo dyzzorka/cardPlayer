@@ -27,7 +27,9 @@ use OpenApi\Attributes as OA;
 #[Route('/api/gamemod')]
 class GameModController extends AbstractController
 {
+
     #[Route('/', name: 'gamemod.getAll', methods: ['GET'])]
+    
     /**
      * Get all GameMod.
      *

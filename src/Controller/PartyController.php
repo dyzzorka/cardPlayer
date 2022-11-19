@@ -22,6 +22,7 @@ use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints\Blank;
 use OpenApi\Attributes as OA;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -406,6 +407,7 @@ class PartyController extends AbstractController
      * @param PartyRepository $partyRepository
      * @return JsonResponse
      */
+    #[IsGranted('ROLE_ADMIN')]
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $partyRepository->remove($party, true);
@@ -435,6 +437,7 @@ class PartyController extends AbstractController
      * @param PartyRepository $partyRepository
      * @return JsonResponse
      */
+    #[IsGranted('ROLE_ADMIN')]
     public function statusParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $party->setStatus(false);

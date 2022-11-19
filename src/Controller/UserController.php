@@ -50,6 +50,7 @@ class UserController extends AbstractController
     public function register(Request $request, UserRepository $userRepository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+
         $user->setStatus(true)->setRoles(['ROLE_USER'])->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
         $userRepository->save($user, true);
         $context = SerializationContext::create()->setGroups(["registerResponse"]);
@@ -90,6 +91,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     /**
      * Get one user by ID
      *
