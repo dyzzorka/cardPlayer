@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Card;
 use App\Entity\GameMod;
 use App\Repository\GameModRepository;
 use Doctrine\ORM\EntityManager;
@@ -33,10 +34,7 @@ class GameModController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: GameMod::class, groups: ['getParty']))
-        )
+        content: new Model(type: Gamemod::class, groups: ['getGamemod'])
     )]
     #[OA\Response(
         response: 400,
