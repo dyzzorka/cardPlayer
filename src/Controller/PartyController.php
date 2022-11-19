@@ -247,6 +247,7 @@ class PartyController extends AbstractController
      * @param Party $party
      * @param PartyRepository $partyRepository
      * @param CardRepository $cardRepository
+     * @param TagAwareCacheInterface $tagAwareCacheInterface
      * @param RankRepository $rankRepository
      * @return JsonResponse
      */
@@ -290,6 +291,7 @@ class PartyController extends AbstractController
      * @param Party $party
      * @param PartyRepository $partyRepository
      * @param UserRepository $userRepository
+     * @param TagAwareCacheInterface $tagAwareCacheInterface
      * @param string $action
      * @return JsonResponse
      */
@@ -334,6 +336,7 @@ class PartyController extends AbstractController
      *
      * @param Party $party
      * @param SerializerInterface $serializer
+     * @param TagAwareCacheInterface $tagAwareCacheInterface
      * @return JsonResponse
      */
     public function advancementParty(Party $party, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
@@ -503,6 +506,7 @@ class PartyController extends AbstractController
      *
      * @param Party $party
      * @param SerializerInterface $serializer
+     * @param TagAwareCacheInterface $tagAwareCacheInterface
      * @return JsonResponse
      */
     public function getHistoryParty(Party $party, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse

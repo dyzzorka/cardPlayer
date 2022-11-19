@@ -29,14 +29,7 @@ class GameModController extends AbstractController
 {
 
     #[Route('/', name: 'gamemod.getAll', methods: ['GET'])]
-    
-    /**
-     * Get all GameMod.
-     *
-     * @param GameModRepository $gameModRepository
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -54,6 +47,13 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Get all GameMod.
+     *
+     * @param GameModRepository $gameModRepository
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getAll(GameModRepository $gameModRepository, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
         $jsonGamemod = $tagAwareCacheInterface->get("getAllGamemod", function (ItemInterface $itemInterface) use ($gameModRepository, $serializer) {
@@ -101,13 +101,7 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}/cards', name: 'gamemod.getCard', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
-    /**
-     * Get all cards from a deck in GameMod.
-     * 
-     * @param GameMod $gameMod
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -125,6 +119,13 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Get all cards from a deck in GameMod.
+     * 
+     * @param GameMod $gameMod
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getAllCards(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getGamemod"]);
@@ -135,13 +136,7 @@ class GameModController extends AbstractController
     #[Route('/{Gamemodname}/delete', name: 'gamemod.delete', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[IsGranted('ROLE_ADMIN')]
-    /**
-     * Remove a GameMode.
-     *
-     * @param GameMod $gameMod
-     * @param EntityManagerInterface $entityManager
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successfully deleted'
@@ -155,6 +150,13 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Remove a GameMode.
+     *
+     * @param GameMod $gameMod
+     * @param EntityManagerInterface $entityManager
+     * @return JsonResponse
+     */
     public function deleteGamemod(GameMod $gameMod, GameModRepository $gameModRepository, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
         $tagAwareCacheInterface->invalidateTags(["gamemodCache"]);
@@ -165,13 +167,7 @@ class GameModController extends AbstractController
     #[Route('/{Gamemodname}', name: 'gamemod.status', methods: ['DELETE'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[IsGranted('ROLE_ADMIN')]
-    /**
-     * Change the status of a GameMod.
-     *
-     * @param GameMod $gameMod
-     * @param EntityManagerInterface $entityManager
-     * @return JsonResponse
-     */
+
 
     #[OA\Response(
         response: 200,
@@ -186,6 +182,13 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Change the status of a GameMod.
+     *
+     * @param GameMod $gameMod
+     * @param EntityManagerInterface $entityManager
+     * @return JsonResponse
+     */
     public function statusGamemod(GameMod $gameMod, GameModRepository $gameModRepository): JsonResponse
     {
         $gameModRepository->save($gameMod->setStatus(false), true);
@@ -194,15 +197,7 @@ class GameModController extends AbstractController
 
     #[Route('/', name: 'gamemod.add', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    /**
-     * Add a GameMod
-     *
-     * @param Request $request
-     * @param EntityManagerInterface $entityManager
-     * @param SerializerInterface $serializer
-     * @param UrlGeneratorInterface $urlGenerator
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successfully deleted'
@@ -216,6 +211,15 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Add a GameMod
+     *
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     * @param SerializerInterface $serializer
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return JsonResponse
+     */
     public function createGamemod(Request $request, GameModRepository $gameModRepository, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $gameMod = $serializer->deserialize($request->getContent(), GameMod::class, 'json');
@@ -230,16 +234,7 @@ class GameModController extends AbstractController
     #[Route('/{Gamemodname}', name: 'gamemod.update', methods: ['PUT'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[IsGranted('ROLE_ADMIN')]
-    /**
-     * Update a GameMod
-     *
-     * @param GameMod $gameMod
-     * @param Request $request
-     * @param EntityManagerInterface $entityManager
-     * @param SerializerInterface $serializer
-     * @param UrlGeneratorInterface $urlGenerator
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successfully updated'
@@ -253,6 +248,16 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Update a GameMod
+     *
+     * @param GameMod $gameMod
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     * @param SerializerInterface $serializer
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return JsonResponse
+     */
     public function updateGamemod(GameMod $gameMod, Request $request, GameModRepository $gameModRepository, SerializerInterface $serializer, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $serializer->deserialize($request->getContent(), GameMod::class, 'json');

@@ -25,15 +25,6 @@ use OpenApi\Attributes as OA;
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'user.register', methods: ['POST'])]
-    /**
-     * Allows a user to register.
-     *
-     * @param Request $request
-     * @param UserRepository $userRepository
-     * @param SerializerInterface $serializer
-     * @param UserPasswordHasherInterface $passwordHasher
-     * @return JsonResponse
-     */
     #[OA\Response(
         response: 200,
         description: 'Successful register'
@@ -47,6 +38,15 @@ class UserController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'User')]
+    /**
+     * Allows a user to register.
+     *
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @param SerializerInterface $serializer
+     * @param UserPasswordHasherInterface $passwordHasher
+     * @return JsonResponse
+     */
     public function register(Request $request, UserRepository $userRepository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -60,12 +60,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/view', name: 'user.view', methods: ['GET'])]
-    /**
-     * Get information of the user connected
-     *
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -83,6 +78,12 @@ class UserController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'User')]
+    /**
+     * Get information of the user connected
+     *
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getUserConnected(SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getUser"]);
@@ -92,13 +93,7 @@ class UserController extends AbstractController
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
     #[IsGranted('ROLE_ADMIN')]
-    /**
-     * Get one user by ID
-     *
-     * @param User $user
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -117,6 +112,13 @@ class UserController extends AbstractController
     )]
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[OA\Tag(name: 'User')]
+    /**
+     * Get one user by ID
+     *
+     * @param User $user
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getOneUser(User $user, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getUser"]);
@@ -125,13 +127,6 @@ class UserController extends AbstractController
     }
 
     #[Route('/{idUser}', name: 'user.status', methods: ['DELETE'])]
-    /**
-     * Change the status of a User.
-     *
-     * @param User $user
-     * @param EntityManagerInterface $entityManager
-     * @return JsonResponse
-     */
     #[OA\Response(
         response: 200,
         description: 'Successfully deleted'
@@ -147,6 +142,13 @@ class UserController extends AbstractController
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Tag(name: 'User')]
+    /**
+     * Change the status of a User.
+     *
+     * @param User $user
+     * @param EntityManagerInterface $entityManager
+     * @return JsonResponse
+     */
     public function statusUser(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $user->setStatus(false);
@@ -155,13 +157,6 @@ class UserController extends AbstractController
     }
 
     #[Route('/{idUser}/delete', name: 'user.delete', methods: ['DELETE'])]
-    /**
-     * Remove a User.
-     *
-     * @param User $User
-     * @param EntityManagerInterface $entityManager
-     * @return JsonResponse
-     */
     #[OA\Response(
         response: 200,
         description: 'Successfully deleted'
@@ -177,6 +172,13 @@ class UserController extends AbstractController
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Tag(name: 'User')]
+    /**
+     * Remove a User.
+     *
+     * @param User $User
+     * @param EntityManagerInterface $entityManager
+     * @return JsonResponse
+     */
     public function deleteUser(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $entityManager->remove($user);
