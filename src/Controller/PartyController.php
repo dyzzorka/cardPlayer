@@ -25,6 +25,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints\Blank;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -121,7 +122,7 @@ class PartyController extends AbstractController
      * @param string $isPrivate
      * @return JsonResponse
      */
-    public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, int $bet, string $isPrivate = "public"): JsonResponse
+    public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod,UrlGeneratorInterface $urlGenerator, int $bet, string $isPrivate = "public"): JsonResponse
     {
         $rankUser =  $rankRepository->getMmr($gameMod, $userRepository->convertUserInterfaceToUser($this->getUser()));
         if ($rankUser == -1) {
@@ -152,7 +153,8 @@ class PartyController extends AbstractController
         $partyRepository->save($party, true);
         $context = SerializationContext::create()->setGroups(["getParty"]);
         $jsonParty = $serializer->serialize($party, 'json', $context);
-        return new JsonResponse($jsonParty, Response::HTTP_CREATED, ['accept' => 'json'], true);
+        $location = $urlGenerator->generate('party.one', ['partyToken' => $party->getToken()], UrlGeneratorInterface::ABSOLUTE_PATH);
+        return new JsonResponse($jsonParty, Response::HTTP_CREATED, ['accept' => 'json', "Location" => $location], true);
     }
 
     #[Route('/join/{partyToken}', name: 'party.join', methods: ['POST'])]

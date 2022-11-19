@@ -48,7 +48,7 @@ class UserController extends AbstractController
      * @param UserPasswordHasherInterface $passwordHasher
      * @return JsonResponse
      */
-    public function register(Request $request, UserRepository $userRepository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    public function register(Request $request, UserRepository $userRepository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
@@ -57,7 +57,8 @@ class UserController extends AbstractController
         $context = SerializationContext::create()->setGroups(["registerResponse"]);
         $jsonuser = $serializer->serialize($user, 'json', $context);
 
-        return new JsonResponse($jsonuser, Response::HTTP_CREATED, [], true);
+        $location = $urlGenerator->generate('user.view',[], UrlGeneratorInterface::ABSOLUTE_PATH);
+        return new JsonResponse($jsonuser, Response::HTTP_CREATED, ['Location'=>$location], true);
     }
 
     #[Route('/view', name: 'user.view', methods: ['GET'])]
