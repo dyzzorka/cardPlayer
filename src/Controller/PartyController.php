@@ -24,6 +24,8 @@ use JMS\Serializer\SerializationContext;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\Validator\Constraints\Blank;
 use OpenApi\Attributes as OA;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('/api/party')]
 class PartyController extends AbstractController
@@ -247,8 +249,9 @@ class PartyController extends AbstractController
      * @param RankRepository $rankRepository
      * @return JsonResponse
      */
-    public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository): JsonResponse
+    public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, TagAwareCacheInterface $tagAwareCacheInterface, RankRepository $rankRepository): JsonResponse
     {
+        $tagAwareCacheInterface->invalidateTags(["getAdvancement" . $party->getToken()]);
         $rankRepository->payMmr($party);
         $black = new BlackJack($party);
         $black->setDeck($cardRepository->doDeck($party));
@@ -289,9 +292,9 @@ class PartyController extends AbstractController
      * @param string $action
      * @return JsonResponse
      */
-    public function playParty(Party $party, PartyRepository $partyRepository, UserRepository $userRepository, string $action = "stand"): JsonResponse
+    public function playParty(Party $party, PartyRepository $partyRepository, UserRepository $userRepository, TagAwareCacheInterface $tagAwareCacheInterface, string $action = "stand"): JsonResponse
     {
-
+        $tagAwareCacheInterface->invalidateTags(["getAdvancement" . $party->getToken()]);
         $blackJack = unserialize($party->getAdvancement());
         if (get_class($blackJack->getActualPlayer()) == "App\Entity\Croupier" || $userRepository->convertUserInterfaceToUser($this->getUser())->getId() != $blackJack->getActualPlayer()->getUser()->getId()) {
             return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "It is not up to you to play."], Response::HTTP_LOCKED, ['accept' => 'json']);
@@ -332,15 +335,20 @@ class PartyController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function advancementParty(Party $party, SerializerInterface $serializer): JsonResponse
+    public function advancementParty(Party $party, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
         if ($party->isRun() == false) {
             return new JsonResponse(["status" => Response::HTTP_LOCKED, "message" => "The game isn't runing."], Response::HTTP_LOCKED, ['accept' => 'json']);
         }
-        $black = unserialize($party->getAdvancement());
-        $context = SerializationContext::create()->setGroups(["getPlay"]);
-        $jsonParty = $serializer->serialize($black, 'json', $context);
-        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonAdvancement = $tagAwareCacheInterface->get("getAdvancement", function (ItemInterface $itemInterface) use ($party, $serializer) {
+            $itemInterface->tag("getAdvancement" . $party->getToken());
+
+            $black = unserialize($party->getAdvancement());
+            $context = SerializationContext::create()->setGroups(["getPlay"]);
+            return $serializer->serialize($black, 'json', $context);
+        });
+
+        return new JsonResponse($jsonAdvancement, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
@@ -494,10 +502,13 @@ class PartyController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function getHistoryParty(Party $party, SerializerInterface $serializer): JsonResponse
+    public function getHistoryParty(Party $party, SerializerInterface $serializer, TagAwareCacheInterface $tagAwareCacheInterface): JsonResponse
     {
-        $context = SerializationContext::create()->setGroups(["getPartyHistoryByParty"]);
-        $jsonParty = $serializer->serialize($party, 'json', $context);
-        return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
+        $jsonHistoryParty = $tagAwareCacheInterface->get("historyParty", function (ItemInterface $itemInterface) use ($party, $serializer) {
+            $itemInterface->tag("historyParty" . $party->getToken());
+            $context = SerializationContext::create()->setGroups(["getPartyHistoryByParty"]);
+            return $serializer->serialize($party, 'json', $context);
+        });
+        return new JsonResponse($jsonHistoryParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 }
