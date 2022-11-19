@@ -21,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\Validator\Constraints\Blank;
 use OpenApi\Attributes as OA;
 
@@ -28,10 +29,6 @@ use OpenApi\Attributes as OA;
 class PartyController extends AbstractController
 {
     #[Route('/', name: 'party.getAll', methods: ['GET'])]
-    /**
-     * Function to get all Party.
-     *
-     */
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -49,6 +46,13 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Function to get all Party.
+     *
+     * @param SerializerInterface $serializer
+     * @param PartyRepository $partyRepository
+     * @return JsonResponse
+     */
     public function getAll(SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getParty"]);
@@ -57,10 +61,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/{partyToken}', name: 'party.getOne', methods: ['GET'])]
-    /**
-     * Function to get one Party by token.
-     * @param string $token
-    */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -79,6 +79,13 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Function to get one Party by token.
+     *
+     * @param Party $party
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getOneParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getParty"]);
@@ -87,9 +94,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/create/{Gamemodname}/{bet}/{isPrivate}', name: 'party.create', methods: ['POST'])]
-    /**
-     * Create party by gamemode bet and if public
-     */
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     #[OA\Response(
         response: 200,
@@ -108,6 +112,18 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Create party by gamemode bet and if public
+     *
+     * @param SerializerInterface $serializer
+     * @param RankRepository $rankRepository
+     * @param PartyRepository $partyRepository
+     * @param UserRepository $userRepository
+     * @param GameMod $gameMod
+     * @param integer $bet
+     * @param string $isPrivate
+     * @return JsonResponse
+     */
     public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, int $bet, string $isPrivate = "public"): JsonResponse
     {
         $rankUser =  $rankRepository->getMmr($gameMod, $userRepository->convertUserInterfaceToUser($this->getUser()));
@@ -143,9 +159,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/join/{partyToken}', name: 'party.join', methods: ['POST'])]
-    /**
-     * Join party by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -164,6 +177,16 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Join party by partyToken
+     *
+     * @param Party $party
+     * @param SerializerInterface $serializer
+     * @param PartyRepository $partyRepository
+     * @param RankRepository $rankRepository
+     * @param UserRepository $userRepository
+     * @return JsonResponse
+     */
     public function joinParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, RankRepository $rankRepository, UserRepository $userRepository): JsonResponse
     {
         if (!$party->isFull() && !$party->isRun() && !$party->isEnd()) {
@@ -197,9 +220,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
-    /**
-     * Run Party by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -218,6 +238,15 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Run Party by partyToken
+     *
+     * @param Party $party
+     * @param PartyRepository $partyRepository
+     * @param CardRepository $cardRepository
+     * @param RankRepository $rankRepository
+     * @return JsonResponse
+     */
     public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository): JsonResponse
     {
         $rankRepository->payMmr($party);
@@ -233,9 +262,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/play/{partyToken}/{action}', name: 'party.play', methods: ['POST'])]
-    /**
-     * Run Party by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -254,6 +280,15 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Run Party by partyToken
+     *
+     * @param Party $party
+     * @param PartyRepository $partyRepository
+     * @param UserRepository $userRepository
+     * @param string $action
+     * @return JsonResponse
+     */
     public function playParty(Party $party, PartyRepository $partyRepository, UserRepository $userRepository, string $action = "stand"): JsonResponse
     {
 
@@ -272,9 +307,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
-    /**
-     * Get advancement of a Party by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -293,6 +325,13 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Get advancement of a Party by partyToken
+     *
+     * @param Party $party
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function advancementParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         if ($party->isRun() == false) {
@@ -305,9 +344,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
-    /**
-     * Leave Party by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -322,6 +358,12 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Leave Party by partyToken
+     *
+     * @param Party $party
+     * @return JsonResponse
+     */
     public function leaveParty(Party $party): JsonResponse
     {
         if ($party->isRun() == false) {
@@ -335,9 +377,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
-    /**
-     * Delete Party by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -352,6 +391,13 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Delete Party by partyToken
+     *
+     * @param Party $party
+     * @param PartyRepository $partyRepository
+     * @return JsonResponse
+     */
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $partyRepository->remove($party, true);
@@ -360,9 +406,6 @@ class PartyController extends AbstractController
 
 
     #[Route('/{partyToken}', name: 'party.status', methods: ['DELETE'])]
-    /**
-     * Set status of a Party on false by partyToken
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -377,6 +420,13 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Set status of a Party on false by partyToken
+     *
+     * @param Party $party
+     * @param PartyRepository $partyRepository
+     * @return JsonResponse
+     */
     public function statusParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $party->setStatus(false);
@@ -385,9 +435,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/history/user/{idUser}', name: 'party.historyUser', methods: ['GET'])]
-    /**
-     * Run Party history by idUser
-     */
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     #[OA\Response(
         response: 200,
@@ -406,6 +453,13 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Run Party history by idUser
+     *
+     * @param User $user
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getHistoryByUser(User $user, SerializerInterface $serializer): JsonResponse
     {
         $user == null ? $this->getUser() : $user = $user;
@@ -415,9 +469,6 @@ class PartyController extends AbstractController
     }
 
     #[Route('/history/party/{partyToken}', name: 'party.history', methods: ['GET'])]
-    /**
-     * Run Party history of one game
-     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
     #[OA\Response(
         response: 200,
@@ -436,22 +487,17 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    /**
+     * Run Party history of one game
+     *
+     * @param Party $party
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getHistoryParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getPartyHistoryByParty"]);
         $jsonParty = $serializer->serialize($party, 'json', $context);
         return new JsonResponse($jsonParty, Response::HTTP_OK, ['accept' => 'json'], true);
     }
-
-
-    /*Rest a faire 
-
-    les truc de location
-    doc method
-    
-    clear group 
-    gerer les acces
-    ajouter le cache ou c'est necesaire
-
-    */
 }

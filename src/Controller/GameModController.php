@@ -21,6 +21,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 
 #[Route('/api/gamemod')]
@@ -64,13 +65,7 @@ class GameModController extends AbstractController
 
     #[Route('/{Gamemodname}', name: 'gamemod.getOne', methods: ['GET'])]
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
-    /**
-     * Get one GameMod.
-     *
-     * @param GameMod $gameMod
-     * @param SerializerInterface $serializer
-     * @return JsonResponse
-     */
+
     #[OA\Response(
         response: 200,
         description: 'Successful response',
@@ -88,6 +83,13 @@ class GameModController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'GameMod')]
+    /**
+     * Get one GameMod.
+     *
+     * @param GameMod $gameMod
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     public function getOneGamemod(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getGamemod"]);
