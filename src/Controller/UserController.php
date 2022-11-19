@@ -27,7 +27,8 @@ class UserController extends AbstractController
     #[Route('/register', name: 'user.register', methods: ['POST'])]
     #[OA\Response(
         response: 200,
-        description: 'Successful register'
+        description: 'Successful response',
+        content: new Model(type: User::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -64,10 +65,7 @@ class UserController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: User::class, groups: ['getParty']))
-        )
+        content: new Model(type: User::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -97,10 +95,7 @@ class UserController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: User::class, groups: ['getParty']))
-        )
+        content: new Model(type: User::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,

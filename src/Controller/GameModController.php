@@ -34,7 +34,10 @@ class GameModController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new Model(type: Gamemod::class, groups: ['getGamemod'])
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: GameMod::class, groups: ['getGamemod']))
+        )
     )]
     #[OA\Response(
         response: 400,
@@ -69,10 +72,7 @@ class GameModController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: GameMod::class, groups: ['getParty']))
-        )
+        content: new Model(type: Card::class, groups: ['getCard'])
     )]
     #[OA\Response(
         response: 400,
@@ -105,7 +105,7 @@ class GameModController extends AbstractController
         description: 'Successful response',
         content: new OA\JsonContent(
             type: 'array',
-            items: new OA\Items(ref: new Model(type: Card::class, groups: ['getParty']))
+            items: new OA\Items(ref: new Model(type: Card::class, groups: ['getCard']))
         )
     )]
     #[OA\Response(
@@ -126,7 +126,7 @@ class GameModController extends AbstractController
      */
     public function getAllCards(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
-        $context = SerializationContext::create()->setGroups(["getGamemod"]);
+        $context = SerializationContext::create()->setGroups(["getCard"]);
         $jsonGamemodCards = $serializer->serialize($gameMod, 'json', $context);
         return new JsonResponse($jsonGamemodCards, Response::HTTP_OK, ['accept' => 'json'], true);
     }
@@ -198,7 +198,7 @@ class GameModController extends AbstractController
 
     #[OA\Response(
         response: 200,
-        description: 'Successfully deleted'
+        description: 'Successfully added'
     )]
     #[OA\Response(
         response: 400,

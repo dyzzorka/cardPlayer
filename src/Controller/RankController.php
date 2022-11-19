@@ -29,7 +29,7 @@ class RankController extends AbstractController
         description: 'Successful response',
         content: new OA\JsonContent(
             type: 'array',
-            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getParty']))
+            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getRank']))
         )
     )]
     #[OA\Response(
@@ -59,10 +59,7 @@ class RankController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getParty']))
-        )
+        content: new Model(type: Rank::class, groups: ['getRank'])
     )]
     #[OA\Response(
         response: 400,
@@ -150,10 +147,7 @@ class RankController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getParty']))
-        )
+        content: new Model(type: Rank::class, groups: ['getRank'])
     )]
     #[OA\Response(
         response: 400,

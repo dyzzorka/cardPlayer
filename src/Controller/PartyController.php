@@ -68,10 +68,7 @@ class PartyController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
-        )
+        content: new Model(type: Party::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -101,10 +98,7 @@ class PartyController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
-        )
+        content: new Model(type: Party::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -166,10 +160,7 @@ class PartyController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
-        )
+        content: new Model(type: Party::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -227,10 +218,7 @@ class PartyController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
-        )
+        content: new Model(type: Party::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -271,10 +259,7 @@ class PartyController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
-        )
+        content: new Model(type: Party::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
@@ -317,10 +302,7 @@ class PartyController extends AbstractController
     #[OA\Response(
         response: 200,
         description: 'Successful response',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
-        )
+        content: new Model(type: Party::class, groups: ['getParty'])
     )]
     #[OA\Response(
         response: 400,
