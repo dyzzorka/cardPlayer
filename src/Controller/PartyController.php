@@ -22,11 +22,33 @@ use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\Validator\Constraints\Blank;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/party')]
 class PartyController extends AbstractController
 {
     #[Route('/', name: 'party.getAll', methods: ['GET'])]
+    /**
+     * Function to get all Party.
+     *
+     */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function getAll(SerializerInterface $serializer, PartyRepository $partyRepository): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getParty"]);
@@ -35,7 +57,28 @@ class PartyController extends AbstractController
     }
 
     #[Route('/{partyToken}', name: 'party.getOne', methods: ['GET'])]
+    /**
+     * Function to get one Party by token.
+     * @param string $token
+    */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function getOneParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getParty"]);
@@ -44,7 +87,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/create/{Gamemodname}/{bet}/{isPrivate}', name: 'party.create', methods: ['POST'])]
+    /**
+     * Create party by gamemode bet and if public
+     */
     #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function createParty(SerializerInterface $serializer, RankRepository $rankRepository, PartyRepository $partyRepository, UserRepository $userRepository, GameMod $gameMod, int $bet, string $isPrivate = "public"): JsonResponse
     {
         $rankUser =  $rankRepository->getMmr($gameMod, $userRepository->convertUserInterfaceToUser($this->getUser()));
@@ -80,7 +143,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/join/{partyToken}', name: 'party.join', methods: ['POST'])]
+    /**
+     * Join party by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function joinParty(Party $party, SerializerInterface $serializer, PartyRepository $partyRepository, RankRepository $rankRepository, UserRepository $userRepository): JsonResponse
     {
         if (!$party->isFull() && !$party->isRun() && !$party->isEnd()) {
@@ -114,7 +197,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/run/{partyToken}', name: 'party.run', methods: ['POST'])]
+    /**
+     * Run Party by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function runParty(Party $party, PartyRepository $partyRepository, CardRepository $cardRepository, RankRepository $rankRepository): JsonResponse
     {
         $rankRepository->payMmr($party);
@@ -130,7 +233,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/play/{partyToken}/{action}', name: 'party.play', methods: ['POST'])]
+    /**
+     * Run Party by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function playParty(Party $party, PartyRepository $partyRepository, UserRepository $userRepository, string $action = "stand"): JsonResponse
     {
 
@@ -149,7 +272,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/advancement/{partyToken}', name: 'party.advancement', methods: ['GET'])]
+    /**
+     * Get advancement of a Party by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function advancementParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         if ($party->isRun() == false) {
@@ -162,7 +305,23 @@ class PartyController extends AbstractController
     }
 
     #[Route('/leave/{partyToken}', name: 'party.leave', methods: ['POST'])]
+    /**
+     * Leave Party by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful leave'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function leaveParty(Party $party): JsonResponse
     {
         if ($party->isRun() == false) {
@@ -176,7 +335,23 @@ class PartyController extends AbstractController
     }
 
     #[Route('/{partyToken}/delete', name: 'party.delete', methods: ['DELETE'])]
+    /**
+     * Delete Party by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful deleted'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function deleteParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $partyRepository->remove($party, true);
@@ -185,7 +360,23 @@ class PartyController extends AbstractController
 
 
     #[Route('/{partyToken}', name: 'party.status', methods: ['DELETE'])]
+    /**
+     * Set status of a Party on false by partyToken
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful deleted'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function statusParty(Party $party,  PartyRepository $partyRepository): JsonResponse
     {
         $party->setStatus(false);
@@ -194,7 +385,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/history/user/{idUser}', name: 'party.historyUser', methods: ['GET'])]
+    /**
+     * Run Party history by idUser
+     */
     #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function getHistoryByUser(User $user, SerializerInterface $serializer): JsonResponse
     {
         $user == null ? $this->getUser() : $user = $user;
@@ -204,7 +415,27 @@ class PartyController extends AbstractController
     }
 
     #[Route('/history/party/{partyToken}', name: 'party.history', methods: ['GET'])]
+    /**
+     * Run Party history of one game
+     */
     #[ParamConverter("party", options: ['mapping' => ['partyToken' => 'token']])]
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Party::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Party')]
     public function getHistoryParty(Party $party, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getPartyHistoryByParty"]);

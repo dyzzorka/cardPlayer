@@ -16,18 +16,36 @@ use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/rank')]
 class RankController extends AbstractController
 {
     #[Route('/', name: 'rank.getAll', methods: ['GET'])]
     /**
-     * Function that returns the list of ranks sorted by gamemod.
+     * Returns the list of ranks sorted by gamemod.
      *
      * @param GameModRepository $gameModRepository
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'Rank')]
     public function getAllRank(GameModRepository $gameModRepository, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getRank"]);
@@ -36,14 +54,31 @@ class RankController extends AbstractController
     }
 
     #[Route('/{RankId}', name: 'rank.getOne', methods: ['GET'])]
-    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
     /**
-     * 
+     * Get one rank by an RankId
      *
      * @param Rank $rank
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[OA\Tag(name: 'Rank')]
     public function getOneRank(Rank $rank, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getOneRank"]);
@@ -52,15 +87,28 @@ class RankController extends AbstractController
     }
 
     #[Route('/{RankId}/delete', name: 'rank.delete', methods: ['DELETE'])]
-    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
-    #[IsGranted('ROLE_ADMIN')]
     /**
-     * Function for delete a rank.
+     * Delete a rank by RankId.
      *
      * @param Rank $rank
      * @param RankRepository $rankRepository
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successfully deleted'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     public function deleteRank(Rank $rank, RankRepository $rankRepository): JsonResponse
     {
         $rankRepository->remove($rank, true);
@@ -68,15 +116,28 @@ class RankController extends AbstractController
     }
 
     #[Route('/{RankId}', name: 'rank.status', methods: ['DELETE'])]
-    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
-    #[IsGranted('ROLE_ADMIN')]
     /**
-     * Function for change status of a rank.
+     * Change status of a rank.
      *
      * @param Rank $rank
      * @param RankRepository $rankRepository
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successfully deleted'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     public function statusRank(Rank $rank, RankRepository $rankRepository): JsonResponse
     {
         $rankRepository->save($rank->setStatus(false), true);
@@ -84,14 +145,31 @@ class RankController extends AbstractController
     }
 
     #[Route('/gamemod/{Gamemodname}', name: 'rank.getAllInGamemod', methods: ['GET'])]
-    #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
     /**
-     * Function that returns the list of ranks for a gamemod.
+     * Returns the list of ranks for a gamemod.
      *
      * @param GameMod $gameMod
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Rank::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("gameMod", options: ['mapping' => ['Gamemodname' => 'name']])]
+    #[OA\Tag(name: 'Rank')]
     public function getAllRankByGamemod(GameMod $gameMod, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getRank"]);
@@ -100,10 +178,8 @@ class RankController extends AbstractController
     }
 
     #[Route('/update/{RankId}/{mmr}', name: 'gamemod.update', methods: ['PUT'])]
-    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
-    #[IsGranted('ROLE_ADMIN')]
     /**
-     * Function that changes a player’s rank on a gamemod if rank entity not exist create automatically
+     * Changes a player’s rank on a gamemod if rank entity not exist create automatically
      *
      * @param GameMod $gameMod
      * @param User $user
@@ -112,6 +188,21 @@ class RankController extends AbstractController
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful updated'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("rank", options: ['mapping' => ['RankId' => 'id']])]
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'Rank')]
     public function updateRank(Rank $rank, int $mmr, RankRepository $rankRepository, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getOneRank"]);

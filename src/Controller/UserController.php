@@ -18,13 +18,14 @@ use Symfony\Component\Security\Core\Security;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/user')]
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'user.register', methods: ['POST'])]
     /**
-     * Function that allows a user to register.
+     * Allows a user to register.
      *
      * @param Request $request
      * @param UserRepository $userRepository
@@ -32,6 +33,19 @@ class UserController extends AbstractController
      * @param UserPasswordHasherInterface $passwordHasher
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful register'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'User')]
     public function register(Request $request, UserRepository $userRepository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -45,11 +59,28 @@ class UserController extends AbstractController
 
     #[Route('/view', name: 'user.view', methods: ['GET'])]
     /**
-     * Function get information of the user connected
+     * Get information of the user connected
      *
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: User::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[OA\Tag(name: 'User')]
     public function getUserConnected(SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getUser"]);
@@ -58,14 +89,31 @@ class UserController extends AbstractController
     }
 
     #[Route('/{idUser}', name: 'user.get', methods: ['GET'])]
-    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
     /**
-     * Function get information of a user
+     * Get one user by ID
      *
      * @param User $user
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successful response',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: User::class, groups: ['getParty']))
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[OA\Tag(name: 'User')]
     public function getOneUser(User $user, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getUser"]);
@@ -74,15 +122,28 @@ class UserController extends AbstractController
     }
 
     #[Route('/{idUser}', name: 'user.status', methods: ['DELETE'])]
-    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
-    #[IsGranted('ROLE_ADMIN')]
     /**
-     * Function that changes the status of a User.
+     * Change the status of a User.
      *
      * @param User $user
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successfully deleted'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'User')]
     public function statusUser(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $user->setStatus(false);
@@ -91,15 +152,28 @@ class UserController extends AbstractController
     }
 
     #[Route('/{idUser}/delete', name: 'user.delete', methods: ['DELETE'])]
-    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
-    #[IsGranted('ROLE_ADMIN')]
     /**
-     * Function that removes a User.
+     * Remove a User.
      *
      * @param User $User
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
+    #[OA\Response(
+        response: 200,
+        description: 'Successfully deleted'
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Bad request'
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Unauthorized'
+    )]
+    #[ParamConverter("user", options: ['mapping' => ['idUser' => 'id']])]
+    #[IsGranted('ROLE_ADMIN')]
+    #[OA\Tag(name: 'User')]
     public function deleteUser(User $user, EntityManagerInterface $entityManager): JsonResponse
     {
         $entityManager->remove($user);
