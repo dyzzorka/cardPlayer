@@ -42,12 +42,12 @@ class CardRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-/**
- * function that hit a cart from the deck
- *
- * @param array $cards
- * @return Card
- */
+    /**
+     * function that hit a cart from the deck
+     *
+     * @param array $cards
+     * @return Card
+     */
     public function pickCard(array &$cards): Card
     {
         return array_shift($cards);
@@ -71,12 +71,12 @@ class CardRepository extends ServiceEntityRepository
     }
 
 
-/**
- * function that distributes the cards
- *
- * @param BlackJack $blackJack
- * @return void
- */
+    /**
+     * function that distributes the cards
+     *
+     * @param BlackJack $blackJack
+     * @return void
+     */
     public function distribCards(BlackJack &$blackJack)
     {
 

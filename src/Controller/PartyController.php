@@ -153,7 +153,7 @@ class PartyController extends AbstractController
         $partyRepository->save($party, true);
         $context = SerializationContext::create()->setGroups(["getParty"]);
         $jsonParty = $serializer->serialize($party, 'json', $context);
-        $location = $urlGenerator->generate('party.one', ['partyToken' => $party->getToken()], UrlGeneratorInterface::ABSOLUTE_PATH);
+        $location = $urlGenerator->generate('party.getOne', ['partyToken' => $party->getToken()], UrlGeneratorInterface::ABSOLUTE_PATH);
         return new JsonResponse($jsonParty, Response::HTTP_CREATED, ['accept' => 'json', "Location" => $location], true);
     }
 
@@ -272,6 +272,12 @@ class PartyController extends AbstractController
         description: 'Unauthorized'
     )]
     #[OA\Tag(name: 'Party')]
+    #[OA\Parameter(
+        name: 'action',
+        in: 'query',
+        description: 'Can be "hit"/"stand"/"double"/"split"',
+        schema: new OA\Schema(type: 'string')
+    )]
     /**
      * Run Party by partyToken
      *

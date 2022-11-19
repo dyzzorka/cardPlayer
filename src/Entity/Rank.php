@@ -11,7 +11,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
 /**
  *  @Hateoas\Relation(
  *      "self", href=@Hateoas\Route(
- *          "party.all"
+ *          "party.getAll"
  *      ),
  *      exclusion= @Hateoas\Exclusion(groups="getParty")
  *  )

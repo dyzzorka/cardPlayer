@@ -13,7 +13,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
 /**
  *  @Hateoas\Relation(
  *      "self", href=@Hateoas\Route(
- *          "gamemod.all", 
+ *          "gamemod.getAll", 
  *          parameters= {"Gamemodname" = "expr(object.getName())" }
  *      ),
  *      exclusion= @Hateoas\Exclusion(groups="getGamemod")

@@ -225,7 +225,7 @@ class GameModController extends AbstractController
         $context = SerializationContext::create()->setGroups(["getGamemod"]);
         $jsonGamemod = $serializer->serialize($gameMod, 'json', $context);
 
-        $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
+        $location = $urlGenerator->generate('gamemod.getOne', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
         return new JsonResponse($jsonGamemod, Response::HTTP_CREATED, ["Location" => $location], true);
     }
 
@@ -266,7 +266,7 @@ class GameModController extends AbstractController
         $context = SerializationContext::create()->setGroups(["getGamemod"]);
         $jsonGamemod = $serializer->serialize($gameMod, 'json', $context);
 
-        $location = $urlGenerator->generate('gamemod.one', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
+        $location = $urlGenerator->generate('gamemod.getOne', ['Gamemodname' => $gameMod->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
         return new JsonResponse($jsonGamemod, Response::HTTP_OK, ["Location" => $location], true);
     }
 }

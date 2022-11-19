@@ -239,7 +239,7 @@ class Croupier extends Player
 
     public function __construct()
     {
-        $this->hand = new ArrayCollection();
+        parent::__construct();
     }
 
 
